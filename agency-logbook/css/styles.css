@@ -1,0 +1,339 @@
+/* ==========================================================
+   styles.css — DICT Benguet-style design
+   Extended for admin panel, sub-tabs, registry, settings.
+========================================================== */
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  background: #f0f0f0;
+  color: #222;
+  min-height: 100vh;
+}
+
+/* --- Page header --- */
+h1{
+  background: #00529B;
+  color: white;
+  text-align: center;
+  padding: 20px 16px;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+/* --- Wrapper --- */
+.app{
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 16px 56px;
+}
+
+/* --- Clock strip --- */
+.clock-strip{
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  font-size: 13px;
+  color: #444;
+}
+.clock-time{ font-weight:bold; color:#00529B; }
+
+/* --- Main tabs --- */
+.tabs{
+  display: flex;
+  border-bottom: 2px solid #00529B;
+  margin-bottom: 16px;
+}
+.tab-btn{
+  appearance: none;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  background: #e8e8e8;
+  color: #444;
+  font-family: Arial, sans-serif;
+  font-size: 13.5px;
+  padding: 10px 18px;
+  cursor: pointer;
+  margin-right: 3px;
+  position: relative; top: 2px;
+}
+.tab-btn:hover{ background:#d0d8e4; color:#00529B; }
+.tab-btn.active{
+  background: #fff;
+  color: #00529B;
+  font-weight: bold;
+  border-color: #00529B;
+  border-bottom-color: #fff;
+  z-index: 1;
+}
+
+.panel{ display:none; }
+.panel.active{ display:block; }
+
+/* --- Cards --- */
+.card{
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.card h2{
+  font-size: 16px;
+  color: #00529B;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* --- Form fields --- */
+.field{ margin-bottom: 14px; }
+label{
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #333;
+}
+.label-note{
+  font-weight: normal;
+  font-size: 12px;
+  color: #888;
+}
+input[type="text"],
+input[type="password"],
+textarea,
+select{
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus{
+  outline: none;
+  border-color: #00529B;
+}
+textarea{ resize:vertical; min-height:60px; }
+
+.field.has-error input,
+.field.has-error textarea,
+.field.has-error select{ border-color: #c0392b; }
+.err-msg{
+  display: none;
+  color: #c0392b;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.field.has-error .err-msg{ display:block; }
+
+.row2{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media(max-width:560px){ .row2{ grid-template-columns:1fr; } }
+
+/* --- Auto-fill badge --- */
+.autofill-badge{
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #e8f5e9;
+  color: #256325;
+  border: 1px solid #a5d6a7;
+  border-radius: 3px;
+  font-size: 12.5px;
+}
+
+/* --- Signature --- */
+canvas{
+  width: 100%;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+  background: #fff;
+}
+
+/* --- Buttons --- */
+button{
+  background: #00529B;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 3px;
+  font-family: Arial, sans-serif;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+button:hover{ opacity:.88; }
+.btn-secondary{ background: #666; }
+.btn-sm{ padding: 7px 12px; font-size: 12.5px; }
+.btn-outline{
+  background: #fff;
+  color: #00529B;
+  border: 1px solid #00529B;
+}
+.btn-outline:hover{ background:#e8f0fa; opacity:1; }
+.btn-timeout{
+  background: #e67e22;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+.sig-actions{ display:flex; gap:8px; margin-top:8px; }
+.submit-row{
+  display:flex; align-items:center; gap:12px;
+  flex-wrap:wrap; margin-top:14px;
+}
+.confirm-banner{
+  background: #eaf5ea;
+  color: #276227;
+  border: 1px solid #82b882;
+  border-radius: 3px;
+  padding: 8px 14px;
+  font-size: 13px;
+  display: none;
+}
+.confirm-banner.show{ display:block; }
+
+/* --- Filter row --- */
+.filter-row{
+  display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;
+}
+.filter-row button{
+  background: #e8e8e8;
+  color: #333;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+.filter-row button.selected{
+  background: #00529B;
+  color: #fff;
+  border-color: #00529B;
+}
+
+/* --- Tables --- */
+table{ width:100%; border-collapse:collapse; font-size:13px; }
+th,td{ border:1px solid #ddd; padding:8px 10px; text-align:left; }
+th{ background:#00529B; color:#fff; font-size:11.5px; text-transform:uppercase; }
+tr:nth-child(even) td{ background:#f7f7f7; }
+.sig-thumb{
+  width:54px; height:26px; object-fit:contain;
+  background:#fff; border:1px solid #ddd; border-radius:2px;
+}
+.pill{
+  display:inline-block; font-size:11.5px; font-weight:bold;
+  padding:3px 9px; border-radius:20px;
+}
+.pill.employee{ background:#dceeff; color:#003f7a; }
+.pill.visitor{ background:#e8f5e9; color:#1b5e20; }
+.row-del{
+  background:none; border:none; color:#c0392b;
+  cursor:pointer; font-size:12px; text-decoration:underline; padding:0;
+}
+.empty-state{
+  text-align:center; padding:28px 10px;
+  color:#888; font-size:13.5px;
+}
+
+/* --- Browse/Export controls --- */
+.export-controls{
+  display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:12px;
+}
+.field-inline{ display:inline-flex; flex-direction:column; gap:4px; }
+.field-inline label{ font-size:12px; font-weight:bold; color:#333; }
+input[type="date"],
+input[type="number"],
+select.small{
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-family: Arial, sans-serif;
+  font-size: 13.5px;
+  background: #fff;
+  color: #222;
+}
+.note{
+  font-size:12.5px; color:#666; line-height:1.6;
+  margin-top:12px; padding-top:12px; border-top:1px solid #eee;
+}
+
+/* --- Admin layout --- */
+.admin-header{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#e8f0fa; border:1px solid #b8d0ec;
+  padding:9px 14px; border-radius:4px; margin-bottom:12px;
+  font-size:13px; color:#003f7a; font-weight:bold;
+}
+
+/* --- Admin sub-tabs --- */
+.sub-tabs{
+  display:flex; flex-wrap:wrap; gap:3px;
+  border-bottom:2px solid #00529B;
+  margin-bottom:16px;
+}
+.sub-tab-btn{
+  background: #e0e0e0;
+  color: #444;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 3px 3px 0 0;
+  position: relative; top: 2px;
+}
+.sub-tab-btn:hover{ background:#d0d8e4; color:#00529B; }
+.sub-tab-btn.active{
+  background: #fff;
+  color: #00529B;
+  font-weight: bold;
+  border-color: #00529B;
+  border-bottom-color: #fff;
+  z-index: 1;
+}
+.sub-panel{ display:none; }
+.sub-panel.active{ display:block; }
+
+/* --- Employee registry form --- */
+.registry-form{
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 4px;
+}
+
+/* --- Toast --- */
+.toast{
+  position:fixed; bottom:20px; left:50%;
+  transform:translateX(-50%);
+  background:#00529B; color:#fff;
+  padding:11px 20px; border-radius:4px;
+  font-size:13.5px; opacity:0;
+  transition:opacity .25s;
+  pointer-events:none; z-index:100;
+}
+.toast.show{ opacity:1; }
+
+code{
+  background:#f0f0f0; padding:2px 5px;
+  border-radius:3px; font-size:12px;
+}

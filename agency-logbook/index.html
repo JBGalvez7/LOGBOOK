@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated Logbook System</title>
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<h1>Automated Logbook System<br>DICT Benguet Provincial Office</h1>
+
+<div class="app">
+
+  <!-- Clock -->
+  <div class="clock-strip">
+    <span class="clock-date" id="clockDate"></span>
+    <span class="clock-time" id="clockTime"></span>
+  </div>
+
+  <!-- Main tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="entry">New Entry</button>
+    <button class="tab-btn" data-tab="admin">🔒 Admin</button>
+  </div>
+
+  <!-- ================================================ NEW ENTRY -->
+  <section class="panel active" id="panel-entry">
+    <div class="card">
+      <h2>New Entry</h2>
+
+      <div class="row2">
+        <div class="field" id="fType">
+          <label>Type</label>
+          <select id="type">
+            <option value="">Select</option>
+            <option>Employee</option>
+            <option>Visitor</option>
+          </select>
+          <div class="err-msg">Please select a type.</div>
+        </div>
+        <div class="field" id="fGender">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Prefer not to say</option>
+          </select>
+          <div class="err-msg">Please select a gender.</div>
+        </div>
+      </div>
+
+      <!-- Employee ID (shown only for Employee) -->
+      <div class="field" id="fIdNumber" style="display:none;">
+        <label>Employee ID <span class="label-note">(enter to auto-fill your details)</span></label>
+        <input type="text" id="idNumber" placeholder="e.g. EMP-001" autocomplete="off">
+        <div class="autofill-badge" id="autoFillBadge" style="display:none;"></div>
+      </div>
+
+      <!-- Visitor Category (shown only for Visitor) -->
+      <div class="field" id="fVisitorCategory" style="display:none;">
+        <label>Visitor Category</label>
+        <select id="visitorCategory">
+          <option value="General Visitor">General Visitor</option>
+          <option value="Senior Citizen (SC)">Senior Citizen (SC)</option>
+          <option value="Student">Student</option>
+          <option value="Person with Disability (PWD)">Person with Disability (PWD)</option>
+          <option value="Government Personnel">Government Personnel</option>
+          <option value="Business Representative">Business Representative</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+
+      <div class="field" id="fName">
+        <label>Full Name</label>
+        <input type="text" id="fullname" placeholder="Juan D. Dela Cruz" autocomplete="off">
+        <div class="err-msg">Please enter the full name.</div>
+      </div>
+
+      <div class="field" id="fPurpose">
+        <label>Purpose of Visit / Duty</label>
+        <textarea id="purpose" placeholder="e.g. Reporting for duty, Submitting documents, Attending training"></textarea>
+        <div class="err-msg">Please enter the purpose.</div>
+      </div>
+
+      <div class="field" id="fSig">
+        <label>Signature</label>
+        <canvas id="signaturePad"></canvas>
+        <div class="err-msg">Please provide a signature.</div>
+      </div>
+      <div class="sig-actions">
+        <button class="btn-sm btn-secondary" onclick="clearSignature()">Clear Signature</button>
+      </div>
+
+      <div class="submit-row">
+        <button onclick="saveEntry()">Submit Entry</button>
+        <div class="confirm-banner" id="confirmBanner"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================ ADMIN -->
+  <section class="panel" id="panel-admin">
+
+    <!-- Login -->
+    <div id="adminLoginWrap">
+      <div class="card" style="max-width:380px;margin:0 auto;">
+        <h2>Admin Login</h2>
+        <p style="font-size:13px;color:#555;margin-bottom:14px;">
+          This area is restricted to authorized personnel only.
+        </p>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="adminPassword" placeholder="Enter password">
+        </div>
+        <div id="loginErr" class="autofill-badge" style="display:none;background:#fde8e8;color:#a93226;border-color:#e8a0a0;">
+          Incorrect password. Please try again.
+        </div>
+        <div style="margin-top:12px;">
+          <button id="loginBtn">Login</button>
+        </div>
+        <p style="font-size:12px;color:#aaa;margin-top:14px;">Default password: admin1234</p>
+      </div>
+    </div>
+
+    <!-- Admin content (hidden until login) -->
+    <div id="adminContentWrap" style="display:none;">
+
+      <div class="admin-header">
+        <span>Logged in as Administrator</span>
+        <button class="btn-sm btn-secondary" id="logoutBtn">Logout</button>
+      </div>
+
+      <!-- Admin sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-sub="today">Today's Log</button>
+        <button class="sub-tab-btn" data-sub="browse">Browse Records</button>
+        <button class="sub-tab-btn" data-sub="export">Export</button>
+        <button class="sub-tab-btn" data-sub="employees">Employee Registry</button>
+        <button class="sub-tab-btn" data-sub="settings">Settings</button>
+      </div>
+
+      <!-- Today's Log -->
+      <div class="sub-panel active" id="subpanel-today">
+        <div class="card">
+          <h2 id="todayTitle">Today's Log</h2>
+          <div class="filter-row" id="todayFilter">
+            <button data-val="all" class="selected">All</button>
+            <button data-val="Employee">Employees</button>
+            <button data-val="Visitor">Visitors</button>
+          </div>
+          <div id="todayTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- Browse Records -->
+      <div class="sub-panel" id="subpanel-browse">
+        <div class="card">
+          <h2>Browse Records</h2>
+          <div class="export-controls" style="margin-bottom:14px;">
+            <div class="field-inline">
+              <label>Date</label>
+              <input type="date" id="browseDate">
+            </div>
+            <button id="browseGo">Show Entries</button>
+          </div>
+          <div class="filter-row" id="browseFilter">
+            <button data-val="all" class="selected">All</button>
+            <button data-val="Employee">Employees</button>
+            <button data-val="Visitor">Visitors</button>
+          </div>
+          <div id="browseTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="sub-panel" id="subpanel-export">
+        <div class="card">
+          <h2>Export Month to Spreadsheet</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Generates one Excel file for the selected month with a separate sheet per day,
+            including days with no entries.
+          </p>
+          <div class="export-controls">
+            <div class="field-inline">
+              <label>Month</label>
+              <select id="exportMonth" class="small"></select>
+            </div>
+            <div class="field-inline">
+              <label>Year</label>
+              <input type="number" id="exportYear" min="2020" max="2035" style="width:90px;">
+            </div>
+            <button id="exportGo">Generate &amp; Download</button>
+          </div>
+          <p class="note">
+            To open in Google Sheets: go to Google Drive → New → File upload, select the
+            downloaded file. Right-click → Open with → Google Sheets.
+          </p>
+        </div>
+      </div>
+
+      <!-- Employee Registry -->
+      <div class="sub-panel" id="subpanel-employees">
+        <div class="card">
+          <h2>Employee Registry</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Registered employees can enter their ID number on the New Entry form and
+            have their name and gender filled in automatically.
+          </p>
+          <div class="registry-form">
+            <div class="row2">
+              <div class="field-inline">
+                <label>ID Number</label>
+                <input type="text" id="empId" placeholder="e.g. EMP-001">
+              </div>
+              <div class="field-inline">
+                <label>Full Name</label>
+                <input type="text" id="empName" placeholder="Juan D. Dela Cruz">
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;align-items:flex-end;gap:12px;">
+              <div class="field-inline">
+                <label>Gender</label>
+                <select id="empGender" class="small">
+                  <option value="">Select</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Prefer not to say</option>
+                </select>
+              </div>
+              <button id="addEmployeeBtn">Add Employee</button>
+            </div>
+          </div>
+          <div style="margin-top:18px;" id="employeeListWrap"></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="sub-panel" id="subpanel-settings">
+        <div class="card">
+          <h2>Google Sheets Integration</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Paste your Google Apps Script web app URL below. Every entry will be synced
+            to your Google Sheet in real time. See <code>Code.gs</code> in the project
+            folder for the script to deploy.
+          </p>
+          <div class="field">
+            <label>Google Apps Script URL</label>
+            <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...">
+          </div>
+          <button id="saveSheetsUrl">Save URL</button>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h2>Change Admin Password</h2>
+          <div class="field">
+            <label>New Password</label>
+            <input type="password" id="newPassword" placeholder="New password">
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <input type="password" id="newPassword2" placeholder="Re-enter new password">
+          </div>
+          <button id="savePasswordBtn">Update Password</button>
+        </div>
+      </div>
+
+    </div><!-- /adminContentWrap -->
+  </section>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Load order matters: utils first, app.js last -->
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/googlesheets.js"></script>
+<script src="js/signature.js"></script>
+<script src="js/render.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
