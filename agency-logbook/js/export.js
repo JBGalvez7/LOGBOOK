@@ -15,7 +15,7 @@ document.getElementById('exportYear').value = _now.getFullYear();
 
 function buildDaySheet(dateObj, entries){
   const aoa = [
-    ['[Office Name] — Daily Employee & Visitor Logbook','','','','','','','',''],
+    ['DICT Benguet Provincial Office — Daily Employee & Visitor Logbook','','','','','','','',''],
     [`Date: ${fullDateLabel(dateObj)}`,'','','','','','','',''],
     ['','','','','','','','',''],
     ['No.','Time In','Time Out','Name','ID Number','Type','Category','Gender','Purpose']
