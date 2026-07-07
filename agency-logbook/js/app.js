@@ -113,7 +113,8 @@ async function saveEntry(){
   const type    = document.getElementById('type').value;
   const gender  = document.getElementById('gender').value;
   const purpose = document.getElementById('purpose').value.trim();
-  const idNum   = document.getElementById('idNumber').value.trim();
+  const idNum    = document.getElementById('idNumber').value.trim();
+  const location  = document.getElementById('location').value;
   const visCat  = document.getElementById('visitorCategory').value;
 
   let ok = true;
@@ -153,7 +154,8 @@ async function saveEntry(){
   document.getElementById('fullname').value = '';
   document.getElementById('type').value     = '';
   document.getElementById('gender').value   = '';
-  document.getElementById('purpose').value  = '';
+  document.getElementById('purpose').value   = '';
+  document.getElementById('location').value  = 'Main Office';
   document.getElementById('idNumber').value = '';
   document.getElementById('autoFillBadge').style.display = 'none';
   document.getElementById('fIdNumber').style.display     = 'none';
@@ -240,3 +242,42 @@ if(isAdminLoggedIn()){
   // keep session active if they refresh while on admin tab
 }
 renderToday();
+
+/* ---- Manual sync button (Admin > Settings) ---- */
+document.getElementById('syncNowBtn').addEventListener('click', async ()=>{
+  const status = document.getElementById('syncStatus');
+  const btn    = document.getElementById('syncNowBtn');
+
+  if(!getSheetsUrl()){
+    status.textContent = 'No Google Sheets URL saved yet.';
+    status.style.display = 'block';
+    return;
+  }
+
+  if(!navigator.onLine){
+    status.textContent = 'Device is offline. Please connect to the internet first.';
+    status.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Syncing...';
+  status.textContent = '';
+  status.style.display = 'none';
+
+  const before = getQueue().length;
+  await flushQueue();
+  const after  = getQueue().length;
+
+  btn.disabled = false;
+  btn.textContent = '🔄 Sync Pending Entries Now';
+
+  if(before === 0){
+    status.textContent = 'No pending entries — everything is already synced.';
+  } else if(after === 0){
+    status.textContent = `Done. ${before} entry${before>1?'s':''} synced successfully.`;
+  } else {
+    status.textContent = `Partially synced. ${after} entry${after>1?'s':''} still pending — check your connection.`;
+  }
+  status.style.display = 'block';
+});

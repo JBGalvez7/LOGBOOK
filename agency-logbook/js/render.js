@@ -49,6 +49,7 @@ function buildTable(entries, dk, wrapId){
       <td>${idx+1}</td>
       <td>${en.time}</td>
       <td>${timeOutCell}</td>
+      <td>${en.location||'Main Office'}</td>
       <td>${escapeHtml(en.name)}${idBadge}</td>
       <td><span class="pill ${pillClass}">${en.type}</span>${category}</td>
       <td>${en.gender}</td>
@@ -60,7 +61,7 @@ function buildTable(entries, dk, wrapId){
 
   wrap.innerHTML = `<div style="overflow-x:auto;"><table>
     <thead><tr>
-      <th>No.</th><th>Time In</th><th>Time Out</th><th>Name</th>
+      <th>No.</th><th>Time In</th><th>Time Out</th><th>Location</th><th>Name</th>
       <th>Type</th><th>Gender</th><th>Purpose</th><th>Sig.</th><th></th>
     </tr></thead>
     <tbody>${rows}</tbody>

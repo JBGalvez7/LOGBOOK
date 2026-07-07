@@ -15,11 +15,12 @@
 </head>
 <body>
 
-<h1>Automated Logbook System<br>DICT Benguet Provincial Office</h1>
+<h1>Automated Logbook System<br>[Office Name]</h1>
 
 <div class="app">
 
   <!-- Clock -->
+  <div id="queueBadge" style="display:none;background:#e67e22;color:#fff;text-align:center;padding:7px 14px;font-size:13px;font-weight:bold;">⏳ Syncing pending — entries saved locally, waiting for connection...</div>
   <div class="clock-strip">
     <span class="clock-date" id="clockDate"></span>
     <span class="clock-time" id="clockTime"></span>
@@ -83,6 +84,14 @@
         <label>Full Name</label>
         <input type="text" id="fullname" placeholder="Juan D. Dela Cruz" autocomplete="off">
         <div class="err-msg">Please enter the full name.</div>
+      </div>
+
+      <div class="field" id="fLocation">
+        <label>Office Location</label>
+        <select id="location">
+          <option value="Main Office">Main Office</option>
+          <option value="Training Center">Training Center</option>
+        </select>
       </div>
 
       <div class="field" id="fPurpose">
@@ -257,6 +266,24 @@
             <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...">
           </div>
           <button id="saveSheetsUrl">Save URL</button>
+          <button id="syncNowBtn" style="margin-top:10px;background:#e67e22;">🔄 Sync Pending Entries Now</button>
+          <p id="syncStatus" style="font-size:12.5px;color:#555;margin-top:8px;display:none;"></p>
+        </div>
+
+                <div class="card" style="margin-top:16px;">
+          <h2>Data Backup &amp; Restore</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Download a full backup of all logbook entries as a JSON file. Store it somewhere safe
+            (USB drive, Google Drive, email). If data is ever lost, you can restore from this file.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button id="backupBtn">&#128190; Download Backup</button>
+            <label style="background:#666;color:#fff;padding:10px 18px;border-radius:3px;cursor:pointer;font-size:13.5px;">
+              &#128196; Restore from Backup
+              <input type="file" id="restoreFile" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <div id="backupInfo" style="font-size:12.5px;color:#555;margin-top:10px;display:none;"></div>
         </div>
 
         <div class="card" style="margin-top:16px;">
@@ -288,6 +315,7 @@
 <script src="js/render.js"></script>
 <script src="js/export.js"></script>
 <script src="js/app.js"></script>
+<script src="js/backup.js"></script>
 
 <script>
 // Register the service worker so the app works offline and is installable

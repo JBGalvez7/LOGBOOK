@@ -6,7 +6,7 @@
    checks for updates in the background.
 ========================================================= */
 
-const CACHE_NAME = 'logbook-v2';
+const CACHE_NAME = 'logbook-v4';
 
 // All files the app needs to work offline
 const FILES_TO_CACHE = [
@@ -21,6 +21,7 @@ const FILES_TO_CACHE = [
   './js/render.js',
   './js/export.js',
   './js/app.js',
+  './js/backup.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'

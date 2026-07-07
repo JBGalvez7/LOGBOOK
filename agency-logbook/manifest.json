@@ -1,7 +1,7 @@
 {
   "name": "Office Logbook System",
   "short_name": "Logbook",
-  "description": "Digital employee and visitor logbook for DICT Benguet Provincial Office.",
+  "description": "Digital employee and visitor logbook for [Office Name].",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait-primary",

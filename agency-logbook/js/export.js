@@ -15,13 +15,13 @@ document.getElementById('exportYear').value = _now.getFullYear();
 
 function buildDaySheet(dateObj, entries){
   const aoa = [
-    ['DICT Benguet Provincial Office — Daily Employee & Visitor Logbook','','','','','','','',''],
+    ['[Office Name] — Daily Employee & Visitor Logbook','','','','','','','',''],
     [`Date: ${fullDateLabel(dateObj)}`,'','','','','','','',''],
     ['','','','','','','','',''],
-    ['No.','Time In','Time Out','Name','ID Number','Type','Category','Gender','Purpose']
+    ['No.','Time In','Time Out','Location','Name','ID Number','Type','Category','Gender','Purpose']
   ];
   if(!entries.length){
-    aoa.push(['—','—','—','No entries recorded.','—','—','—','—','—']);
+    aoa.push(['—','—','—','—','No entries recorded.','—','—','—','—','—']);
   } else {
     entries.forEach((en,i)=>{
       aoa.push([
@@ -33,11 +33,11 @@ function buildDaySheet(dateObj, entries){
   }
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!merges'] = [
-    { s:{r:0,c:0}, e:{r:0,c:8} },
-    { s:{r:1,c:0}, e:{r:1,c:8} }
+    { s:{r:0,c:0}, e:{r:0,c:9} },
+    { s:{r:1,c:0}, e:{r:1,c:9} }
   ];
   ws['!cols'] = [
-    {wch:4},{wch:12},{wch:12},{wch:24},{wch:10},
+    {wch:4},{wch:12},{wch:12},{wch:14},{wch:24},{wch:10},
     {wch:10},{wch:20},{wch:10},{wch:34}
   ];
   return ws;
