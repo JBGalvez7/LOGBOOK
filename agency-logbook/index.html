@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<h1>Automated Logbook System<br>[Office Name]</h1>
+<h1>Automated Logbook System<br>DICT Benguet Provincial Office</h1>
 
 <div class="app">
 
@@ -29,6 +29,7 @@
   <!-- Main tabs -->
   <div class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="entry">New Entry</button>
+    <button class="tab-btn" data-tab="employee">👤 Employee</button>
     <button class="tab-btn" data-tab="admin">🔒 Admin</button>
   </div>
 
@@ -116,6 +117,24 @@
     </div>
   </section>
 
+
+  <!-- ================================================ EMPLOYEE -->
+  <section class="panel" id="panel-employee">
+    <div class="card">
+      <h2>Employee Time Out</h2>
+      <p style="font-size:13px;color:#555;margin-bottom:16px;">
+        Enter your Employee ID to clock in or out.
+      </p>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:bold;color:#333;display:block;margin-bottom:5px;">Employee ID</label>
+        <input type="text" id="empCheckId" placeholder="e.g. EMP-001" autocomplete="off" style="padding:9px 10px;border:1px solid #ccc;border-radius:3px;font-size:14px;width:100%;max-width:280px;">
+      </div>
+
+      <div id="empCheckResult" style="display:none;margin-top:6px;"></div>
+    </div>
+  </section>
+
   <!-- ================================================ ADMIN -->
   <section class="panel" id="panel-admin">
 
@@ -124,7 +143,7 @@
       <div class="card" style="max-width:380px;margin:0 auto;">
         <h2>Admin Login</h2>
         <p style="font-size:13px;color:#555;margin-bottom:14px;">
-          This area is restricted to authorized personnel only.
+          This section is for admin use only. Please enter your password to continue.
         </p>
         <div class="field">
           <label>Password</label>
@@ -136,7 +155,6 @@
         <div style="margin-top:12px;">
           <button id="loginBtn">Login</button>
         </div>
-        <p style="font-size:12px;color:#aaa;margin-top:14px;">Default password: admin1234</p>
       </div>
     </div>
 
@@ -174,6 +192,7 @@
       <div class="sub-panel" id="subpanel-browse">
         <div class="card">
           <h2>Browse Records</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">Pick a date to pull up the log entries for that day.</p>
           <div class="export-controls" style="margin-bottom:14px;">
             <div class="field-inline">
               <label>Date</label>
@@ -195,8 +214,7 @@
         <div class="card">
           <h2>Export Month to Spreadsheet</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            Generates one Excel file for the selected month with a separate sheet per day,
-            including days with no entries.
+            This will generate an Excel file for the selected month. Each day of the month gets its own sheet, even days with no entries, so the records stay complete.
           </p>
           <div class="export-controls">
             <div class="field-inline">
@@ -221,8 +239,7 @@
         <div class="card">
           <h2>Employee Registry</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            Registered employees can enter their ID number on the New Entry form and
-            have their name and gender filled in automatically.
+            Employees added here can just type their ID on the New Entry form and their details will fill in on their own. Their signature gets saved the first time they submit an entry.
           </p>
           <div class="registry-form">
             <div class="row2">
@@ -235,7 +252,7 @@
                 <input type="text" id="empName" placeholder="Juan D. Dela Cruz">
               </div>
             </div>
-            <div style="margin-top:10px;display:flex;align-items:flex-end;gap:12px;">
+            <div style="margin-top:10px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
               <div class="field-inline">
                 <label>Gender</label>
                 <select id="empGender" class="small">
@@ -245,7 +262,21 @@
                   <option>Prefer not to say</option>
                 </select>
               </div>
+              <div class="field-inline">
+                <label>Office Location</label>
+                <select id="empOfficeLocation" class="small">
+                  <option value="Main Office">Main Office</option>
+                  <option value="Training Center">Training Center</option>
+                </select>
+              </div>
+              <div class="field-inline" style="flex:1;">
+                <label>Default Purpose</label>
+                <input type="text" id="empDefaultPurpose" placeholder="Reporting for duty" style="padding:8px 10px;border:1px solid #ccc;border-radius:3px;font-size:13.5px;width:100%;">
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
               <button id="addEmployeeBtn">Add Employee</button>
+              <button id="cancelEditBtn" class="btn-secondary" style="display:none;">Cancel Edit</button>
             </div>
           </div>
           <div style="margin-top:18px;" id="employeeListWrap"></div>
@@ -257,9 +288,7 @@
         <div class="card">
           <h2>Google Sheets Integration</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            Paste your Google Apps Script web app URL below. Every entry will be synced
-            to your Google Sheet in real time. See <code>Code.gs</code> in the project
-            folder for the script to deploy.
+            Paste the Google Apps Script URL here so entries can be synced to Google Sheets automatically. The <code>Code.gs</code> file in the project folder has the script you need to deploy first.
           </p>
           <div class="field">
             <label>Google Apps Script URL</label>
@@ -273,8 +302,7 @@
                 <div class="card" style="margin-top:16px;">
           <h2>Data Backup &amp; Restore</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            Download a full backup of all logbook entries as a JSON file. Store it somewhere safe
-            (USB drive, Google Drive, email). If data is ever lost, you can restore from this file.
+            Download a copy of all logbook entries as a backup file. It's a good idea to save this somewhere safe like a USB drive or Google Drive in case anything happens to the device.
           </p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <button id="backupBtn">&#128190; Download Backup</button>
@@ -288,6 +316,7 @@
 
         <div class="card" style="margin-top:16px;">
           <h2>Change Admin Password</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">Set a new password for the admin section. Make sure to remember it or keep it somewhere safe.</p>
           <div class="field">
             <label>New Password</label>
             <input type="password" id="newPassword" placeholder="New password">

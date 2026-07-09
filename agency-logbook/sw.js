@@ -6,7 +6,7 @@
    checks for updates in the background.
 ========================================================= */
 
-const CACHE_NAME = 'logbook-v4';
+const CACHE_NAME = 'logbook-v9';
 
 // All files the app needs to work offline
 const FILES_TO_CACHE = [

@@ -61,3 +61,11 @@ function showToast(msg, isError){
   clearTimeout(window._toastTimer);
   window._toastTimer = setTimeout(()=> t.classList.remove('show'), 3000);
 }
+
+function debounce(fn, delay){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(()=> fn.apply(this, args), delay);
+  };
+}

@@ -337,3 +337,58 @@ code{
   background:#f0f0f0; padding:2px 5px;
   border-radius:3px; font-size:12px;
 }
+
+/* ---- Employee tab: status boxes ---- */
+.emp-box{
+  border-radius: 4px;
+  padding: 18px 20px;
+  border: 1px solid #ddd;
+}
+.emp-neutral { background: #f5f9ff; border-color: #b8d0ec; }
+.emp-active  { background: #e8f5e9; border-color: #82b882; }
+.emp-done    { background: #f0f4fa; border-color: #b0bec5; }
+.emp-error   { background: #fde8e8; border-color: #e8a0a0; color: #a93226; }
+.emp-absent  { background: #fff8e1; border-color: #f0c040; }
+
+.emp-name-big{
+  font-size: 18px;
+  font-weight: bold;
+  color: #00529B;
+  margin-bottom: 4px;
+}
+.emp-detail{
+  font-size: 13.5px;
+  color: #444;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.emp-times{
+  font-size: 13px;
+  color: #444;
+  margin-top: 8px;
+  padding: 7px 10px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 3px;
+  display: inline-block;
+}
+.emp-sig-note{
+  font-size: 12px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.emp-action-btn{
+  margin-top: 14px;
+  background: #00529B;
+  color: #fff;
+  border: none;
+  padding: 13px 28px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  font-family: Arial, sans-serif;
+  letter-spacing: 0.3px;
+}
+.emp-action-btn:hover{ opacity: .88; }
