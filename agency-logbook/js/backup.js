@@ -6,7 +6,7 @@
    back into localStorage without overwriting unaffected days.
 ========================================================= */
 
-/* ---- Collect all entry keys from localStorage ---- */
+// Collect all entry keys from localStorage
 function getAllEntryKeys(){
   const keys = [];
   for(let i = 0; i < localStorage.length; i++){
@@ -16,7 +16,7 @@ function getAllEntryKeys(){
   return keys;
 }
 
-/* ---- Build a full backup object ---- */
+// Build a full backup object
 async function buildBackup(){
   const keys   = getAllEntryKeys();
   const data   = {};
@@ -45,7 +45,7 @@ async function buildBackup(){
   };
 }
 
-/* ---- Download backup as JSON file ---- */
+// Download backup as JSON file
 document.getElementById('backupBtn').addEventListener('click', async ()=>{
   const btn = document.getElementById('backupBtn');
   btn.disabled   = true;
@@ -80,7 +80,7 @@ document.getElementById('backupBtn').addEventListener('click', async ()=>{
   }
 });
 
-/* ---- Restore from JSON backup file ---- */
+// Restore from JSON backup file
 document.getElementById('restoreFile').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -141,7 +141,7 @@ document.getElementById('restoreFile').addEventListener('change', async (e)=>{
   e.target.value = '';
 });
 
-/* ---- Auto-backup reminder: once a week ---- */
+//Auto-backup reminder: once a week
 (function checkAutoBackupReminder(){
   const REMINDER_KEY = 'logbook:lastBackupReminder';
   const last = localStorage.getItem(REMINDER_KEY);

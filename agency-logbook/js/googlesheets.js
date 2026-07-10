@@ -40,7 +40,7 @@ async function sheetsPost(url, payload){
   });
 }
 
-/* ---- Main sync: try now, queue on failure ---- */
+// Main sync: try now, queue on failure
 async function sheetsSync(payload){
   const url = getSheetsUrl();
   if(!url) return;

@@ -27,7 +27,7 @@ const FILES_TO_CACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
 ];
 
-/* ---- Install: cache everything ---- */
+// Install: cache everything
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -38,7 +38,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-/* ---- Activate: remove old caches ---- */
+// Activate: remove old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -52,7 +52,7 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-/* ---- Fetch: serve from cache, fall back to network ---- */
+// Fetch: serve from cache, fall back to network
 self.addEventListener('fetch', event => {
   // Don't intercept Google Apps Script calls — always needs live network
   if (event.request.url.includes('script.google.com')) return;

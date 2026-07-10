@@ -6,7 +6,7 @@
 let todayFilterVal  = 'all';
 let browseFilterVal = 'all';
 
-/* ---------- Filter listeners ---------- */
+// Filter listeners
 document.getElementById('todayFilter').addEventListener('click', e=>{
   const b = e.target.closest('button'); if(!b) return;
   document.querySelectorAll('#todayFilter button').forEach(x=>x.classList.remove('selected'));
@@ -24,7 +24,7 @@ document.getElementById('browseFilter').addEventListener('click', e=>{
   if(dk) renderBrowse(dk);
 });
 
-/* ---------- Table builder ---------- */
+// Table builder
 function buildTable(entries, dk, wrapId){
   const wrap = document.getElementById(wrapId);
   if(!entries.length){
@@ -67,7 +67,7 @@ function buildTable(entries, dk, wrapId){
     <tbody>${rows}</tbody>
   </table></div>`;
 
-  /* Time Out buttons */
+  // Time Out buttons
   wrap.querySelectorAll('.btn-timeout').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const entryId = btn.dataset.entryid;
@@ -87,7 +87,7 @@ function buildTable(entries, dk, wrapId){
     });
   });
 
-  /* Remove buttons */
+  // Remove buttons
   wrap.querySelectorAll('.row-del').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       if(!confirm('Remove this entry? This cannot be undone.')) return;
@@ -107,7 +107,7 @@ function buildTable(entries, dk, wrapId){
   });
 }
 
-/* ---------- Today ---------- */
+// Today
 async function renderToday(){
   const now = new Date();
   const dk  = dateKey(now);
@@ -117,7 +117,7 @@ async function renderToday(){
   buildTable(entries, dk, 'todayTableWrap');
 }
 
-/* ---------- Browse ---------- */
+// Browse
 document.getElementById('browseDate').valueAsDate = new Date();
 
 function triggerBrowse(){

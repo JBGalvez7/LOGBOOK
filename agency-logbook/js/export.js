@@ -13,11 +13,11 @@ const _now = new Date();
 monthSelect.value = _now.getMonth();
 document.getElementById('exportYear').value = _now.getFullYear();
 
-/* Helper — return value or '-' if empty/null */
+// Helper — return value or '-' if empty/null
 function dash(val){ return (val && val.toString().trim()) ? val : '-'; }
 
 function buildDaySheet(dateObj, entries){
-  /* Row 1: title, Row 2: date, Row 3: blank, Row 4: headers */
+  // Row 1: title, Row 2: date, Row 3: blank, Row 4: headers
   const COLS = 10;
   const blank = Array(COLS).fill('');
 
@@ -48,13 +48,13 @@ function buildDaySheet(dateObj, entries){
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-  /* Merges: title row and date row span all columns */
+  // Merges: title row and date row span all columns
   ws['!merges'] = [
     { s:{ r:0, c:0 }, e:{ r:0, c:COLS-1 } },
     { s:{ r:1, c:0 }, e:{ r:1, c:COLS-1 } }
   ];
 
-  /* Column widths */
+  // Column widths
   ws['!cols'] = [
     { wch: 5  },  // No.
     { wch: 13 },  // Time In
@@ -68,7 +68,7 @@ function buildDaySheet(dateObj, entries){
     { wch: 36 },  // Purpose
   ];
 
-  /* Row heights */
+  // Row heights
   ws['!rows'] = [
     { hpt: 28 },  // title
     { hpt: 18 },  // date
@@ -76,27 +76,27 @@ function buildDaySheet(dateObj, entries){
     { hpt: 20 },  // headers
   ];
 
-  /* Freeze panes: lock rows 1-4 (title, date, blank, header) */
+  // Freeze panes: lock rows 1-4 (title, date, blank, header)
   ws['!freeze'] = { xSplit: 0, ySplit: 4 };
 
-  /* Cell styles — blue header row, bold title */
+  // Cell styles — blue header row, bold title
   const blueHeader = { font:{ bold:true, color:{ rgb:'FFFFFF' } }, fill:{ fgColor:{ rgb:'00529B' } }, alignment:{ horizontal:'center' } };
   const boldTitle  = { font:{ bold:true, sz:12 }, alignment:{ horizontal:'center', wrapText:true } };
   const boldDate   = { font:{ bold:false, sz:10, italic:true }, alignment:{ horizontal:'center' } };
   const altRow     = { fill:{ fgColor:{ rgb:'EEF4FB' } } };
 
-  /* Apply title style (A1) */
+  // Apply title style (A1)
   if(ws['A1']) ws['A1'].s = boldTitle;
   if(ws['A2']) ws['A2'].s = boldDate;
 
-  /* Apply header styles (row 4 = index 3) */
+  // Apply header styles (row 4 = index 3)
   const headerCols = ['A','B','C','D','E','F','G','H','I','J'];
   headerCols.forEach(col => {
     const cell = ws[`${col}4`];
     if(cell) cell.s = blueHeader;
   });
 
-  /* Alternate row shading for data rows */
+  // Alternate row shading for data rows
   if(entries.length){
     entries.forEach((_, i) => {
       if(i % 2 === 1){ // shade even data rows (0-indexed odd)

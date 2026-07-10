@@ -21,7 +21,7 @@ const MONTHS = [
   'July','August','September','October','November','December'
 ];
 
-/* ---- Get or create the monthly sheet with headers ---- */
+// Get or create the monthly sheet with headers
 function getOrCreateSheet(ss, sheetName){
   let sheet = ss.getSheetByName(sheetName);
   if(!sheet){
@@ -43,7 +43,7 @@ function getOrCreateSheet(ss, sheetName){
   return sheet;
 }
 
-/* ---- Main request handler ---- */
+// Main request handler
 function doPost(e){
   try{
     const data  = JSON.parse(e.postData.contents);

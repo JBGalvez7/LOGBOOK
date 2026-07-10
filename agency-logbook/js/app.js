@@ -4,9 +4,7 @@
    Loaded last; depends on all other JS files.
 ========================================================= */
 
-/* ----------------------------------------------------------------
-   LIVE CLOCK
----------------------------------------------------------------- */
+// LIVE COLCK
 function tickClock(){
   const now = new Date();
   document.getElementById('clockDate').textContent = fullDateLabel(now);
@@ -15,9 +13,7 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 1000);
 
-/* ----------------------------------------------------------------
-   MAIN TABS
----------------------------------------------------------------- */
+// MAIN TABS
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if(btn.dataset.tab === 'admin' && !isAdminLoggedIn()){
@@ -39,9 +35,7 @@ function switchMainTab(tab){
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
 }
 
-/* ----------------------------------------------------------------
-   ADMIN LOGIN / LOGOUT
----------------------------------------------------------------- */
+// ADMIN LOGIN / LOGOUT
 function showAdminLogin(){
   document.getElementById('adminLoginWrap').style.display   = 'block';
   document.getElementById('adminContentWrap').style.display = 'none';
@@ -75,9 +69,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   switchMainTab('entry');
 });
 
-/* ----------------------------------------------------------------
-   ADMIN SUB-TABS
----------------------------------------------------------------- */
+// ADMIN SUB-TABS
 document.querySelectorAll('.sub-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
@@ -86,9 +78,7 @@ document.querySelectorAll('.sub-tab-btn').forEach(btn => {
   });
 });
 
-/* ----------------------------------------------------------------
-   NEW ENTRY FORM
----------------------------------------------------------------- */
+// NEW ENTRY FORM
 document.getElementById('type').addEventListener('change', handleTypeChange);
 
 function handleTypeChange(){
@@ -104,7 +94,7 @@ function handleTypeChange(){
   }
 }
 
-/* Employee ID auto-fill: name, gender, purpose, location, signature */
+// Employee ID auto-fill: name, gender, purpose, location, signature
 document.getElementById('idNumber').addEventListener('input', lookupEmployee);
 
 function lookupEmployee(){
@@ -145,12 +135,12 @@ function lookupEmployee(){
   }
 }
 
-/* Validation helper */
+// Validation helper
 function setError(fieldId, on){
   document.getElementById(fieldId).classList.toggle('has-error', on);
 }
 
-/* Save entry */
+// Save entry
 async function saveEntry(){
   const name     = document.getElementById('fullname').value.trim();
   const type     = document.getElementById('type').value;
@@ -186,7 +176,7 @@ async function saveEntry(){
   const saved = await saveEntriesFor(dk, entries);
   if(!saved){ showToast('Could not save. Try again.', true); return; }
 
-  /* Auto-save signature to registry on employee's first entry */
+  // Auto-save signature to registry on employee's first entry
   if(type === 'Employee' && idNum){
     const reg = getEmployeeRegistry();
     const idx = reg.findIndex(e => e.id.toLowerCase() === idNum.toLowerCase());
@@ -203,7 +193,7 @@ async function saveEntry(){
   banner.classList.add('show');
   setTimeout(() => banner.classList.remove('show'), 4000);
 
-  /* Reset form */
+  // Reset form
   document.getElementById('fullname').value  = '';
   document.getElementById('type').value      = '';
   document.getElementById('gender').value    = '';
@@ -217,9 +207,7 @@ async function saveEntry(){
   showToast('Entry saved successfully!');
 }
 
-/* ----------------------------------------------------------------
-   EMPLOYEE TAB — Time Out & Absence Reporting
----------------------------------------------------------------- */
+// EMPLOYEE TAB — Time Out & Absence Reporting
 const debouncedEmpCheck = debounce(handleEmployeeCheck, 350);
 document.getElementById('empCheckId').addEventListener('input', debouncedEmpCheck);
 
@@ -347,10 +335,9 @@ async function employeeReportAbsence(id, emp){
   document.getElementById('empCheckResult').style.display = 'none';
 }
 
-/* ----------------------------------------------------------------
-   EMPLOYEE REGISTRY (Admin)
+/* EMPLOYEE REGISTRY (Admin)
    editingEmpIndex declared here so all functions below can see it
----------------------------------------------------------------- */
+*/
 let editingEmpIndex = -1;
 
 function cancelEditEmployee(){
@@ -382,7 +369,7 @@ document.getElementById('addEmployeeBtn').addEventListener('click', () => {
   const list = getEmployeeRegistry();
 
   if(editingEmpIndex >= 0){
-    /* Update existing — preserve their stored signature */
+    // Update existing (preserve their stored signature)
     list[editingEmpIndex].name           = name;
     list[editingEmpIndex].gender         = gender;
     list[editingEmpIndex].location       = location;
@@ -392,7 +379,7 @@ document.getElementById('addEmployeeBtn').addEventListener('click', () => {
     cancelEditEmployee();
     showToast(`${name}'s details have been updated.`);
   } else {
-    /* Add new */
+    //Add new
     if(list.find(e => e.id.toLowerCase() === id.toLowerCase())){
       showToast('An employee with that ID is already registered.', true);
       return;
@@ -468,9 +455,8 @@ function renderEmployeeRegistry(){
   });
 }
 
-/* ----------------------------------------------------------------
-   ADMIN SETTINGS
----------------------------------------------------------------- */
+// ADMIN SETTINGS
+
 function loadAdminSettings(){
   document.getElementById('sheetsUrlInput').value = getSheetsUrl();
 }
@@ -527,8 +513,8 @@ document.getElementById('savePasswordBtn').addEventListener('click', () => {
   showToast('Password updated.');
 });
 
-/* Browse shortcut */
+//Browse shortcut
 document.getElementById('browseGo').addEventListener('click', triggerBrowse);
 
-/* Initial render */
+//Initial render
 renderToday();

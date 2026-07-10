@@ -24,7 +24,7 @@ async function updateEntryTimeOut(dk, entryId, timeOut){
   return saveEntriesFor(dk, entries);
 }
 
-/* ---------- Employee registry ---------- */
+// Employee registry
 function getEmployeeRegistry(){
   try{ const r = localStorage.getItem('logbook:employees'); return r ? JSON.parse(r) : []; }
   catch(e){ return []; }
@@ -38,7 +38,7 @@ function getEmployeeById(id){
   return getEmployeeRegistry().find(e => e.id.trim().toLowerCase() === id.trim().toLowerCase()) || null;
 }
 
-/* ---------- Admin config ---------- */
+// Admin config
 function getAdminPassword(){ return localStorage.getItem('logbook:adminPw') || 'admin1234'; }
 function setAdminPassword(pw){ localStorage.setItem('logbook:adminPw', pw); }
 
