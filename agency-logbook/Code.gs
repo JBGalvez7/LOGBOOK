@@ -1,7 +1,6 @@
 /*
-  ============================================================
   Code.gs — Google Apps Script for DICT Benguet Logbook
-  ============================================================
+
   HOW TO DEPLOY:
   1. Go to https://script.google.com — create a new project.
   2. Paste all of this code into the editor, replacing everything.
@@ -15,7 +14,6 @@
   This script must be opened from inside a Google Sheet.
   Create a blank Google Sheet first, then go to
   Extensions > Apps Script to open the editor.
-  ============================================================
 */
 
 const MONTHS = [
