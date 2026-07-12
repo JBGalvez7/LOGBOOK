@@ -55,7 +55,7 @@ async function sheetsSync(payload){
   }
 }
 
-/* ---- Retry all queued payloads ---- */
+// Retry all queued payloads
 async function flushQueue(){
   const url = getSheetsUrl();
   if(!url) return;
@@ -85,7 +85,7 @@ async function flushQueue(){
   }
 }
 
-/* ---- Badge showing how many are waiting ---- */
+// Badge showing how many are waiting
 function updateQueueBadge(){
   const count = getQueue().length;
   const badge = document.getElementById('queueBadge');
@@ -98,19 +98,19 @@ function updateQueueBadge(){
   }
 }
 
-/* ---- Listen for when device comes back online ---- */
+// Listen for when device comes back online
 window.addEventListener('online', ()=>{
   console.log('Back online — attempting queue flush...');
   flushQueue();
 });
 
-/* ---- Try flushing on every page load too ---- */
+// Try flushing on every page load too
 window.addEventListener('load', ()=>{
   updateQueueBadge();
   if(navigator.onLine) flushQueue();
 });
 
-/* ---- Wrappers called by the rest of the app ---- */
+// Wrappers called by the rest of the app
 function sheetsSyncAdd(entry, dateObj){
   sheetsSync({
     action:          'add',
