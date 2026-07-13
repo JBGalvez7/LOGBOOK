@@ -160,6 +160,21 @@ async function saveEntry(){
 
   const now   = new Date();
   const dk    = dateKey(now);
+
+  // Prevent duplicate clock-in: check if this employee already has an entry today
+  if(type === 'Employee' && idNum){
+    const todayEntries = await getEntriesFor(dk);
+    const alreadyIn = todayEntries.find(e =>
+      e.idNumber &&
+      e.idNumber.toLowerCase() === idNum.toLowerCase() &&
+      e.type === 'Employee'
+    );
+    if(alreadyIn){
+      showToast(`${name} already has an entry for today (${alreadyIn.time}). Use the Employee tab to clock out.`, true);
+      return;
+    }
+  }
+
   const entry = {
     entryId:         generateEntryId(dk),
     time:            formatTime(now),
@@ -256,10 +271,16 @@ async function handleEmployeeCheck(){
       <div class="emp-box emp-active">
         <div class="emp-name-big">${escapeHtml(emp.name)}</div>
         <div class="emp-detail">Time In: <b>${activeEntry.time}</b></div>
-        <div class="emp-detail" style="margin-bottom:4px;">${escapeHtml(activeEntry.purpose)}</div>
+        <div class="emp-detail" style="margin-bottom:12px;">${escapeHtml(activeEntry.purpose)}</div>
         <button class="emp-action-btn" id="empClockOutBtn">Time Out</button>
+        <hr style="border:none;border-top:1px solid #c8e6c9;margin:16px 0;">
+        <div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:6px;">Unexpected Leave During Work Hours</div>
+        <div style="font-size:12.5px;color:#555;margin-bottom:8px;">Need to leave early or step out unexpectedly? Enter the reason below. This will record your time out with a leave note.</div>
+        <textarea id="earlyLeaveReason" placeholder="e.g. Medical emergency, family concern..." style="width:100%;min-height:58px;padding:8px;border:1px solid #ccc;border-radius:3px;font-size:13px;font-family:Arial;resize:vertical;"></textarea>
+        <button class="btn-secondary" style="margin-top:8px;" id="empEarlyLeaveBtn">Submit Leave &amp; Clock Out</button>
       </div>`;
     document.getElementById('empClockOutBtn').addEventListener('click', () => employeeClockOut(activeEntry.entryId, dk, emp));
+    document.getElementById('empEarlyLeaveBtn').addEventListener('click', () => employeeEarlyLeave(activeEntry.entryId, dk, emp));
 
   } else {
     result.innerHTML = `
@@ -288,6 +309,28 @@ async function employeeClockOut(entryId, dk, emp){
   if(entry) sheetsSyncTimeOut(entry, new Date(entry.timestamp));
 
   showToast(`Time out recorded for ${emp.name} at ${timeOut}.`);
+  document.getElementById('empCheckId').value = '';
+  document.getElementById('empCheckResult').style.display = 'none';
+}
+
+async function employeeEarlyLeave(entryId, dk, emp){
+  const reason = document.getElementById('earlyLeaveReason').value.trim();
+  if(!reason){ showToast('Please enter a reason before submitting.', true); return; }
+
+  const timeOut = formatTime(new Date());
+  const ok      = await updateEntryTimeOut(dk, entryId, timeOut);
+  if(!ok){ showToast('Could not record the leave. Try again.', true); return; }
+
+  // Append leave note to the entry purpose in storage
+  const entries = await getEntriesFor(dk);
+  const idx     = entries.findIndex(e => e.entryId === entryId);
+  if(idx !== -1){
+    entries[idx].purpose += ` | Early Leave: ${reason}`;
+    await saveEntriesFor(dk, entries);
+    sheetsSyncTimeOut(entries[idx], new Date(entries[idx].timestamp));
+  }
+
+  showToast(`Early leave recorded for ${emp.name} at ${timeOut}.`);
   document.getElementById('empCheckId').value = '';
   document.getElementById('empCheckResult').style.display = 'none';
 }
