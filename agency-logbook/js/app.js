@@ -546,6 +546,68 @@ function loadAdminSettings(){
   document.getElementById('sheetsUrlInput').value = getSheetsUrl();
 }
 
+document.getElementById('openSheetBtn').addEventListener('click', async () => {
+  const url = getSheetsUrl();
+  if(!url){ showToast('No Google Sheets URL saved yet.', true); return; }
+  // Ask the script for the actual spreadsheet URL
+  const sheetUrl = await sheetsGetSpreadsheetUrl();
+  if(sheetUrl){
+    window.open(sheetUrl, '_blank');
+  } else {
+    // Fallback: open the script exec URL (Google will redirect)
+    window.open(url.replace('/exec', '/'), '_blank');
+    showToast('Opening — if it does not load, check your internet connection.', false);
+  }
+});
+
+document.getElementById('downloadSheetBtn').addEventListener('click', async () => {
+  const url = getSheetsUrl();
+  if(!url){ showToast('No Google Sheets URL saved yet.', true); return; }
+  if(!navigator.onLine){ showToast('You need internet for this.', true); return; }
+  // Fetch current month data from Sheets and export as Excel
+  const now  = new Date();
+  const mi   = now.getMonth();
+  const year = now.getFullYear();
+  const btn  = document.getElementById('downloadSheetBtn');
+  btn.disabled = true; btn.textContent = 'Downloading...';
+  try{
+    const mName     = monthSheetName(new Date(year, mi, 1));
+    const sheetRows = await sheetsFetchMonth(mName);
+    if(!sheetRows || !sheetRows.length){
+      showToast('No data found in Google Sheets for this month.', true);
+      return;
+    }
+    const wb   = XLSX.utils.book_new();
+    const used = new Set();
+    const days = daysInMonth(year, mi);
+    const sheetsByDay = {};
+    sheetRows.forEach(e => {
+      const key = e.sheetsDate || '';
+      if(!sheetsByDay[key]) sheetsByDay[key] = [];
+      sheetsByDay[key].push(e);
+    });
+    for(let d = 1; d <= days; d++){
+      const dateObj = new Date(year, mi, d);
+      const label   = fullDateLabel(dateObj);
+      const local   = await getEntriesFor(dateKey(dateObj));
+      const entries = mergeEntries(local, sheetsByDay[label] || []);
+      const ws      = buildDaySheet(dateObj, entries);
+      let name = safeSheetName(dateObj), sfx = 1;
+      while(used.has(name)) name = `${safeSheetName(dateObj)}-${sfx++}`;
+      used.add(name);
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    }
+    const fileName = `Logbook_${MONTHS_FULL[mi]}_${year}_Combined.xlsx`;
+    XLSX.writeFile(wb, fileName, { cellStyles: true });
+    showToast(`Downloaded ${fileName} — combined from all devices.`);
+  }catch(err){
+    console.error(err);
+    showToast('Download failed. Please try again.', true);
+  }finally{
+    btn.disabled = false; btn.textContent = '⬇ Download as Excel from Sheets';
+  }
+});
+
 document.getElementById('saveSheetsUrl').addEventListener('click', () => {
   setSheetsUrl(document.getElementById('sheetsUrlInput').value);
   showToast('Google Sheets URL saved.');

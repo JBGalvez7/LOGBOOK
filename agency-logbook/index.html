@@ -15,13 +15,15 @@
 </head>
 <body>
 
-<div class="header-inner">
-  <img src="icons/logo-placeholder.png" alt="Office Logo" class="header-logo" id="headerLogo">
-  <div class="header-text">
-    <h1>DICT Benguet Provincial Office</h1>
-    <div class="header-sub">Automated Logbook System</div>
+<header class="site-header">
+  <div class="header-inner">
+    <img src="icons/logo-placeholder.png" alt="Office Logo" class="header-logo">
+    <div class="header-text">
+      <div class="header-title">Automated Logbook System</div>
+      <div class="header-sub">DICT Benguet Provincial Office</div>
+    </div>
   </div>
-</div>
+</header>
 
 <!-- ====== SCREENSAVER / WELCOME SCREEN ====== -->
 <div id="screensaver">
@@ -312,7 +314,11 @@
             <label>Google Apps Script URL</label>
             <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...">
           </div>
-          <button id="saveSheetsUrl">Save URL</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
+            <button id="saveSheetsUrl">Save URL</button>
+            <button id="openSheetBtn" class="btn-secondary" style="background:#276227;">📊 Open Google Sheet</button>
+            <button id="downloadSheetBtn" class="btn-secondary" style="background:#1b5e20;">⬇ Download as Excel from Sheets</button>
+          </div>
           <button id="syncNowBtn" style="margin-top:10px;background:#e67e22;">🔄 Sync Pending Entries Now</button>
           <p id="syncStatus" style="font-size:12.5px;color:#555;margin-top:8px;display:none;"></p>
         </div>

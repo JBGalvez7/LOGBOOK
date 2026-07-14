@@ -184,40 +184,47 @@ function mergeEntries(local, sheetsRows){
 }
 
 /* Fetch a specific date's entries from Sheets */
-async function sheetsFetchDate(dateObj){
+/* Core GET fetch — Google Apps Script supports CORS for GET on "Anyone" deployments */
+async function sheetsGet(params){
   const url = getSheetsUrl();
   if(!url || !navigator.onLine) return null;
   try{
-    const params = new URLSearchParams({
-      action:    'getByDate',
-      sheetName: monthSheetName(dateObj),
-      date:      fullDateLabel(dateObj)
+    const qs  = new URLSearchParams(params);
+    const res = await fetch(`${url}?${qs}`, {
+      method:  'GET',
+      headers: { 'Content-Type': 'application/json' }
     });
-    const res  = await fetch(`${url}?${params}`);
+    if(!res.ok) return null;
     const data = await res.json();
-    if(data.status === 'success') return data.data.map(sheetsRowToEntry);
-    return null;
+    return data;
   }catch(e){
-    console.warn('sheetsFetchDate failed:', e.message);
+    console.warn('Sheets GET failed:', e.message);
     return null;
   }
 }
 
-/* Fetch an entire month's entries from Sheets */
+async function sheetsFetchDate(dateObj){
+  const data = await sheetsGet({
+    action:    'getByDate',
+    sheetName: monthSheetName(dateObj),
+    date:      fullDateLabel(dateObj)
+  });
+  if(data && data.status === 'success' && data.data.length)
+    return data.data.map(sheetsRowToEntry);
+  return null;
+}
+
 async function sheetsFetchMonth(monthName){
-  const url = getSheetsUrl();
-  if(!url || !navigator.onLine) return null;
-  try{
-    const params = new URLSearchParams({
-      action:    'getSheet',
-      sheetName: monthName
-    });
-    const res  = await fetch(`${url}?${params}`);
-    const data = await res.json();
-    if(data.status === 'success') return data.data.map(sheetsRowToEntry);
-    return null;
-  }catch(e){
-    console.warn('sheetsFetchMonth failed:', e.message);
-    return null;
-  }
+  const data = await sheetsGet({
+    action:    'getSheet',
+    sheetName: monthName
+  });
+  if(data && data.status === 'success' && data.data.length)
+    return data.data.map(sheetsRowToEntry);
+  return null;
+}
+
+async function sheetsGetSpreadsheetUrl(){
+  const data = await sheetsGet({ action: 'getSpreadsheetUrl' });
+  return (data && data.status === 'success') ? data.url : null;
 }
