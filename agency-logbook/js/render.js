@@ -49,12 +49,15 @@ function buildTable(entries, dk, wrapId){
       <td>${idx+1}</td>
       <td>${en.time}</td>
       <td>${timeOutCell}</td>
-      <td>${en.location||'Main Office'}</td>
+      <td>${en.location||'Benguet Provincial Office'}</td>
       <td>${escapeHtml(en.name)}${idBadge}</td>
       <td><span class="pill ${pillClass}">${en.type}</span>${category}</td>
       <td>${en.gender}</td>
       <td>${escapeHtml(en.purpose)}</td>
-      <td><img class="sig-thumb" src="${en.signature}" alt="Sig"></td>
+      <td>${en.signature
+      ? `<img class="sig-thumb" src="${en.signature}" alt="Sig">`
+      : `<span style="font-size:11px;color:#888;font-style:italic;">${en.fromSheets ? 'Synced ✓' : '—'}</span>`
+    }</td>
       <td>${delBtn}</td>
     </tr>`;
   }).join('');
@@ -109,12 +112,22 @@ function buildTable(entries, dk, wrapId){
 
 // Today
 async function renderToday(){
-  const now = new Date();
-  const dk  = dateKey(now);
+  const now    = new Date();
+  const dk     = dateKey(now);
   document.getElementById('todayTitle').textContent = `Today's Log — ${fullDateLabel(now)}`;
-  let entries = await getEntriesFor(dk);
-  if(todayFilterVal !== 'all') entries = entries.filter(e=>e.type === todayFilterVal);
+
+  let local   = await getEntriesFor(dk);
+  // Try to fetch combined entries from Sheets (includes other devices)
+  const sheet = await sheetsFetchDate(now);
+  let entries = sheet ? mergeEntries(local, sheet) : local;
+
+  if(todayFilterVal !== 'all') entries = entries.filter(e => e.type === todayFilterVal);
   buildTable(entries, dk, 'todayTableWrap');
+
+  // Let admin know if Sheets fetch failed while online
+  if(!sheet && navigator.onLine && getSheetsUrl()){
+    showToast('Showing local entries only — could not reach Sheets.', false);
+  }
 }
 
 // Browse
@@ -127,7 +140,11 @@ function triggerBrowse(){
 }
 
 async function renderBrowse(dk){
-  let entries = await getEntriesFor(dk);
-  if(browseFilterVal !== 'all') entries = entries.filter(e=>e.type === browseFilterVal);
+  const dateObj = new Date(dk + 'T00:00:00');
+  let   local   = await getEntriesFor(dk);
+  const sheet   = await sheetsFetchDate(dateObj);
+  let   entries = sheet ? mergeEntries(local, sheet) : local;
+
+  if(browseFilterVal !== 'all') entries = entries.filter(e => e.type === browseFilterVal);
   buildTable(entries, dk, 'browseTableWrap');
 }

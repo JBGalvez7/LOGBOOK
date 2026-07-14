@@ -123,7 +123,7 @@ function sheetsSyncAdd(entry, dateObj){
     idNumber:        entry.idNumber        || '',
     type:            entry.type,
     visitorCategory: entry.visitorCategory || '',
-    location:        entry.location        || 'Main Office',
+    location:        entry.location        || 'Benguet Provincial Office',
     gender:          entry.gender,
     purpose:         entry.purpose
   });
@@ -144,4 +144,80 @@ function sheetsSyncRemove(entry, dateObj){
     sheetName: monthSheetName(dateObj),
     entryId:   entry.entryId
   });
+}
+
+/* ================================================================
+   MULTI-DEVICE FETCH — reads from Google Sheets so combined
+   entries from all connected devices are included.
+   All functions return null if offline or no URL configured.
+================================================================ */
+
+/* Convert a Sheets row object → app entry format */
+function sheetsRowToEntry(row){
+  return {
+    entryId:         row['Entry ID']       || '',
+    time:            row['Time In']        || '',
+    timeOut:         row['Time Out']       || '',
+    timestamp:       '',
+    sheetsDate:      row['Date']           || '', // kept for grouping in export
+    location:        row['Office Location']|| '',
+    name:            row['Name']           || '',
+    idNumber:        row['ID Number']      || '',
+    type:            row['Type']           || '',
+    visitorCategory: row['Category']       || '',
+    gender:          row['Gender']         || '',
+    purpose:         row['Purpose']        || '',
+    signature:       null,
+    fromSheets:      true
+  };
+}
+
+/* Merge local + Sheets entries, dedup by entryId (local wins) */
+function mergeEntries(local, sheetsRows){
+  const map = new Map();
+  local.forEach(e => map.set(e.entryId, e));
+  sheetsRows.forEach(e => {
+    if(e.entryId && !map.has(e.entryId)) map.set(e.entryId, e);
+  });
+  // Sort by time string (HH:MM:SS AM/PM — works lexicographically for same-day)
+  return Array.from(map.values()).sort((a, b) => (a.time > b.time ? 1 : -1));
+}
+
+/* Fetch a specific date's entries from Sheets */
+async function sheetsFetchDate(dateObj){
+  const url = getSheetsUrl();
+  if(!url || !navigator.onLine) return null;
+  try{
+    const params = new URLSearchParams({
+      action:    'getByDate',
+      sheetName: monthSheetName(dateObj),
+      date:      fullDateLabel(dateObj)
+    });
+    const res  = await fetch(`${url}?${params}`);
+    const data = await res.json();
+    if(data.status === 'success') return data.data.map(sheetsRowToEntry);
+    return null;
+  }catch(e){
+    console.warn('sheetsFetchDate failed:', e.message);
+    return null;
+  }
+}
+
+/* Fetch an entire month's entries from Sheets */
+async function sheetsFetchMonth(monthName){
+  const url = getSheetsUrl();
+  if(!url || !navigator.onLine) return null;
+  try{
+    const params = new URLSearchParams({
+      action:    'getSheet',
+      sheetName: monthName
+    });
+    const res  = await fetch(`${url}?${params}`);
+    const data = await res.json();
+    if(data.status === 'success') return data.data.map(sheetsRowToEntry);
+    return null;
+  }catch(e){
+    console.warn('sheetsFetchMonth failed:', e.message);
+    return null;
+  }
 }

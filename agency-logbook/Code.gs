@@ -1,19 +1,20 @@
 /*
+  ============================================================
   Code.gs — Google Apps Script for DICT Benguet Logbook
-
+  ============================================================
   HOW TO DEPLOY:
-  1. Go to https://script.google.com — create a new project.
-  2. Paste all of this code into the editor, replacing everything.
-  3. Click Deploy > New deployment.
-  4. Type: Web app
-  5. Execute as: Me
-  6. Who has access: Anyone
-  7. Click Deploy, authorize when prompted, copy the Web App URL.
-  8. Paste that URL into the logbook app: Admin > Settings > Google Sheets URL.
+  1. Open the Google Sheet, go to Extensions > Apps Script.
+  2. Paste this entire file, replacing everything.
+  3. Deploy > New deployment > Web app
+     - Execute as: Me
+     - Who has access: Anyone
+  4. Copy the Web App URL and paste it in the logbook app:
+     Admin > Settings > Google Sheets Integration.
 
-  This script must be opened from inside a Google Sheet.
-  Create a blank Google Sheet first, then go to
-  Extensions > Apps Script to open the editor.
+  IMPORTANT — after any code change:
+  Deploy > Manage deployments > Edit > New version > Deploy.
+  The URL stays the same.
+  ============================================================
 */
 
 const MONTHS = [
@@ -21,7 +22,7 @@ const MONTHS = [
   'July','August','September','October','November','December'
 ];
 
-// Get or create the monthly sheet with headers
+/* ---- Get or create a monthly sheet ---- */
 function getOrCreateSheet(ss, sheetName){
   let sheet = ss.getSheetByName(sheetName);
   if(!sheet){
@@ -34,16 +35,69 @@ function getOrCreateSheet(ss, sheetName){
     range.setValues([headers]);
     range.setBackground('#00529B').setFontColor('#ffffff').setFontWeight('bold');
     sheet.setFrozenRows(1);
-    sheet.setColumnWidth(1, 180);  // Entry ID
-    sheet.setColumnWidth(2, 200);  // Date
-    sheet.setColumnWidth(5, 130);  // Location
-    sheet.setColumnWidth(6, 160);  // Name
-    sheet.setColumnWidth(11, 250); // Purpose
+    sheet.setColumnWidths(1, 11, 130);
+    sheet.setColumnWidth(11, 260);
   }
   return sheet;
 }
 
-// Main request handler
+/* ---- Helper: respond with JSON ---- */
+function respond(data){
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ---- GET: fetch entries for Today's Log, Browse, and Export ---- */
+function doGet(e){
+  try{
+    const p      = e.parameter;
+    const action = p.action;
+    const ss     = SpreadsheetApp.getActiveSpreadsheet();
+
+    if(action === 'getSheet'){
+      // Returns all rows of one monthly sheet
+      const sheet = ss.getSheetByName(p.sheetName);
+      if(!sheet || sheet.getLastRow() <= 1)
+        return respond({ status: 'empty', data: [] });
+
+      const raw     = sheet.getDataRange().getValues();
+      const headers = raw[0];
+      const rows    = raw.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]) : ''; });
+        return obj;
+      });
+      return respond({ status: 'success', data: rows });
+    }
+
+    if(action === 'getByDate'){
+      // Returns only rows matching a specific date label
+      const sheet = ss.getSheetByName(p.sheetName);
+      if(!sheet || sheet.getLastRow() <= 1)
+        return respond({ status: 'empty', data: [] });
+
+      const raw     = sheet.getDataRange().getValues();
+      const headers = raw[0];
+      const dateCol = headers.indexOf('Date');
+      const rows    = raw.slice(1)
+        .filter(row => String(row[dateCol]) === p.date)
+        .map(row => {
+          const obj = {};
+          headers.forEach((h, i) => { obj[h] = row[i] !== undefined ? String(row[i]) : ''; });
+          return obj;
+        });
+      return respond({ status: 'success', data: rows });
+    }
+
+    return respond({ status: 'error', message: 'Unknown action' });
+
+  }catch(err){
+    return respond({ status: 'error', message: err.toString() });
+  }
+}
+
+/* ---- POST: add, timeout, remove ---- */
 function doPost(e){
   try{
     const data  = JSON.parse(e.postData.contents);
@@ -56,7 +110,7 @@ function doPost(e){
         data.date,
         data.timeIn,
         '',
-        data.location        || 'Main Office',
+        data.location        || 'Benguet Provincial Office',
         data.name,
         data.idNumber        || '',
         data.type,
@@ -71,7 +125,7 @@ function doPost(e){
       const lastRow = sheet.getLastRow();
       for(let r = 2; r <= lastRow; r++){
         if(sheet.getRange(r, 1).getValue() === data.entryId){
-          sheet.getRange(r, 4).setValue(data.timeOut); // col D = Time Out
+          sheet.getRange(r, 4).setValue(data.timeOut);
           break;
         }
       }
@@ -94,10 +148,4 @@ function doPost(e){
   }catch(err){
     return respond({ status: 'error', message: err.toString() });
   }
-}
-
-function respond(data){
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
 }

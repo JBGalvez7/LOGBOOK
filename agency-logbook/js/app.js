@@ -1,3 +1,45 @@
+
+/* ================================================================
+   SCREENSAVER — shows on load, returns after 1 min inactivity
+================================================================ */
+(function initScreensaver(){
+  const ss        = document.getElementById('screensaver');
+  const TIMEOUT   = 60 * 1000; // 1 minute
+  let   timer     = null;
+
+  function showSS(){
+    ss.classList.remove('ss-hidden', 'ss-hiding');
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  function hideSS(){
+    ss.classList.add('ss-hiding');
+    setTimeout(() => ss.classList.add('ss-hidden'), 600);
+    startTimer();
+  }
+
+  function startTimer(){
+    clearTimeout(timer);
+    timer = setTimeout(showSS, TIMEOUT);
+  }
+
+  // Dismiss on any tap/click/key
+  ss.addEventListener('click',      hideSS);
+  ss.addEventListener('touchstart', hideSS, { passive: true });
+  document.addEventListener('keydown', e => {
+    if(!ss.classList.contains('ss-hidden')) hideSS();
+    else startTimer();
+  });
+
+  // Reset timer on activity while app is visible
+  ['mousemove','mousedown','touchstart','scroll'].forEach(ev => {
+    document.addEventListener(ev, () => {
+      if(ss.classList.contains('ss-hidden')) startTimer();
+    }, { passive: true });
+  });
+})();
+
 /* =========================================================
    app.js — clock, tabs, New Entry form, Employee tab,
    admin login, sub-tabs, employee registry, settings.
@@ -214,7 +256,7 @@ async function saveEntry(){
   document.getElementById('gender').value    = '';
   document.getElementById('purpose').value   = '';
   document.getElementById('idNumber').value  = '';
-  document.getElementById('location').value  = 'Main Office';
+  document.getElementById('location').value  = 'Benguet Provincial Office';
   document.getElementById('autoFillBadge').style.display    = 'none';
   document.getElementById('fIdNumber').style.display        = 'none';
   document.getElementById('fVisitorCategory').style.display = 'none';
@@ -341,7 +383,7 @@ async function employeeReportAbsence(id, emp){
 
   const now = new Date();
   const dk  = dateKey(now);
-  const loc = emp.location || 'Main Office';
+  const loc = emp.location || 'Benguet Provincial Office';
 
   let sig = emp.signature;
   if(!sig){
@@ -388,7 +430,7 @@ function cancelEditEmployee(){
   document.getElementById('empId').value             = '';
   document.getElementById('empName').value           = '';
   document.getElementById('empGender').value         = '';
-  document.getElementById('empOfficeLocation').value = 'Main Office';
+  document.getElementById('empOfficeLocation').value = 'Benguet Provincial Office';
   document.getElementById('empDefaultPurpose').value = '';
   document.getElementById('empId').disabled          = false;
   document.getElementById('addEmployeeBtn').textContent      = 'Add Employee';
@@ -449,7 +491,7 @@ function renderEmployeeRegistry(){
     <td>${escapeHtml(emp.id)}</td>
     <td>${escapeHtml(emp.name)}</td>
     <td>${emp.gender}</td>
-    <td>${escapeHtml(emp.location || 'Main Office')}</td>
+    <td>${escapeHtml(emp.location || 'Benguet Provincial Office')}</td>
     <td>${escapeHtml(emp.defaultPurpose || 'Reporting for duty')}</td>
     <td>${emp.signature
       ? '<span style="color:#276227;font-size:12px;">✓ On file</span>'
@@ -476,7 +518,7 @@ function renderEmployeeRegistry(){
       document.getElementById('empId').value             = emp.id;
       document.getElementById('empName').value           = emp.name;
       document.getElementById('empGender').value         = emp.gender;
-      document.getElementById('empOfficeLocation').value = emp.location || 'Main Office';
+      document.getElementById('empOfficeLocation').value = emp.location || 'Benguet Provincial Office';
       document.getElementById('empDefaultPurpose').value = emp.defaultPurpose || 'Reporting for duty';
       document.getElementById('empId').disabled          = true;
       document.getElementById('addEmployeeBtn').textContent  = 'Save Changes';
