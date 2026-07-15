@@ -184,19 +184,22 @@ function mergeEntries(local, sheetsRows){
 }
 
 /* Fetch a specific date's entries from Sheets */
-/* Core GET fetch — Google Apps Script supports CORS for GET on "Anyone" deployments */
+/* Core GET fetch — NO custom headers so it stays a "simple request".
+   Adding Content-Type triggers a CORS preflight which Google Apps Script
+   does not handle, causing the fetch to fail every time. */
 async function sheetsGet(params){
   const url = getSheetsUrl();
   if(!url || !navigator.onLine) return null;
   try{
     const qs  = new URLSearchParams(params);
-    const res = await fetch(`${url}?${qs}`, {
-      method:  'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if(!res.ok) return null;
-    const data = await res.json();
-    return data;
+    // Simple GET — no custom headers, no preflight, CORS passes fine
+    const res = await fetch(`${url}?${qs}`, { redirect: 'follow' });
+    if(!res.ok){
+      console.warn('Sheets GET non-ok status:', res.status);
+      return null;
+    }
+    const text = await res.text();
+    return JSON.parse(text);
   }catch(e){
     console.warn('Sheets GET failed:', e.message);
     return null;

@@ -608,6 +608,30 @@ document.getElementById('downloadSheetBtn').addEventListener('click', async () =
   }
 });
 
+document.getElementById('testConnectionBtn').addEventListener('click', async () => {
+  const btn    = document.getElementById('testConnectionBtn');
+  const status = document.getElementById('syncStatus');
+  if(!getSheetsUrl()){ showToast('No Google Sheets URL saved yet.', true); return; }
+  if(!navigator.onLine){ showToast('Device is offline.', true); return; }
+  btn.disabled = true; btn.textContent = 'Testing...';
+  status.style.display = 'none';
+  try{
+    const data = await sheetsGet({ action: 'getSpreadsheetUrl' });
+    if(data && data.status === 'success'){
+      status.textContent = '✅ Connection successful! Sheets is reachable and responding.';
+      status.style.color = '#276227';
+    } else {
+      status.textContent = '❌ Reached the URL but got an unexpected response. Make sure you redeployed the script as a New Version after updating Code.gs.';
+      status.style.color = '#a93226';
+    }
+  }catch(e){
+    status.textContent = '❌ Could not reach Sheets. Check the URL and try again.';
+    status.style.color = '#a93226';
+  }
+  status.style.display = 'block';
+  btn.disabled = false; btn.textContent = '🔌 Test Sheets Connection';
+});
+
 document.getElementById('saveSheetsUrl').addEventListener('click', () => {
   setSheetsUrl(document.getElementById('sheetsUrlInput').value);
   showToast('Google Sheets URL saved.');
