@@ -1,10 +1,9 @@
 /* =========================================================
-   export.js — generates a monthly Excel file locally.
-   One workbook per month, one sheet per calendar day,
-   using entries saved on this device's localStorage.
-
-   For combined entries from all connected devices, open
-   the Google Sheet directly from Admin > Settings.
+   export.js — monthly Excel export with combined entries.
+   Tries to fetch each day's data from Google Sheets via
+   the Visualization API (CORS-safe, no Apps Script needed).
+   Falls back to local-only if offline or Sheets unavailable.
+   Requires the sheet to be shared: "Anyone with link - Viewer"
 ========================================================= */
 
 const monthSelect = document.getElementById('exportMonth');
@@ -71,24 +70,46 @@ document.getElementById('exportGo').addEventListener('click', async () => {
   if(!year || year < 1900 || year > 2200){
     showToast('Enter a valid year.', true); return;
   }
+
   const btn = document.getElementById('exportGo');
   btn.disabled = true; btn.textContent = 'Generating...';
+
   try{
-    const days = daysInMonth(year, mi);
-    const wb   = XLSX.utils.book_new();
-    const used = new Set();
+    const days          = daysInMonth(year, mi);
+    const wb            = XLSX.utils.book_new();
+    const used          = new Set();
+    const spreadsheetId = extractSpreadsheetId(getSpreadsheetUrl());
+    let   combined      = false;
+
     for(let d = 1; d <= days; d++){
-      const dateObj = new Date(year, mi, d);
-      const entries = await getEntriesFor(dateKey(dateObj));
-      const ws      = buildDaySheet(dateObj, entries);
+      const dateObj  = new Date(year, mi, d);
+      const dk       = dateKey(dateObj);
+      const local    = await getEntriesFor(dk);
+
+      /* Try to fetch this day from Sheets (combined from all devices) */
+      let entries = local;
+      if(spreadsheetId){
+        const sheetEntries = await fetchSheetsDayViz(spreadsheetId, daySheetName(dateObj));
+        if(sheetEntries !== null){
+          entries  = mergeExportEntries(local, sheetEntries);
+          combined = true;
+        }
+      }
+
+      const ws = buildDaySheet(dateObj, entries);
       let name = safeSheetName(dateObj), sfx = 1;
       while(used.has(name)) name = `${safeSheetName(dateObj)}-${sfx++}`;
       used.add(name);
       XLSX.utils.book_append_sheet(wb, ws, name);
     }
+
     const fileName = `Logbook_${MONTHS_FULL[mi]}_${year}.xlsx`;
     XLSX.writeFile(wb, fileName, {cellStyles: true});
-    showToast(`${fileName} downloaded — ${days} sheets.`);
+    showToast(combined
+      ? `${fileName} downloaded — combined from all devices.`
+      : `${fileName} downloaded — local only (paste Spreadsheet URL in Settings for combined).`
+    );
+
   }catch(err){
     console.error(err);
     showToast('Export failed. Please try again.', true);
