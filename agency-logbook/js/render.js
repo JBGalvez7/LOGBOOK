@@ -54,10 +54,7 @@ function buildTable(entries, dk, wrapId){
       <td><span class="pill ${pillClass}">${en.type}</span>${category}</td>
       <td>${en.gender}</td>
       <td>${escapeHtml(en.purpose)}</td>
-      <td>${en.signature
-      ? `<img class="sig-thumb" src="${en.signature}" alt="Sig">`
-      : `<span style="font-size:11px;color:#888;font-style:italic;">${en.fromSheets ? 'Synced ✓' : '—'}</span>`
-    }</td>
+      <td>${en.signature ? `<img class="sig-thumb" src="${en.signature}" alt="Sig">` : '<span style="font-size:11px;color:#888;">—</span>'}</td>
       <td>${delBtn}</td>
     </tr>`;
   }).join('');
@@ -112,21 +109,24 @@ function buildTable(entries, dk, wrapId){
 
 // Today
 async function renderToday(){
-  const now    = new Date();
-  const dk     = dateKey(now);
+  const now = new Date();
+  const dk  = dateKey(now);
   document.getElementById('todayTitle').textContent = `Today's Log — ${fullDateLabel(now)}`;
 
-  let local   = await getEntriesFor(dk);
-  // Try to fetch combined entries from Sheets (includes other devices)
-  const sheet = await sheetsFetchDate(now);
-  let entries = sheet ? mergeEntries(local, sheet) : local;
-
+  let entries = await getEntriesFor(dk);
   if(todayFilterVal !== 'all') entries = entries.filter(e => e.type === todayFilterVal);
   buildTable(entries, dk, 'todayTableWrap');
 
-  // Let admin know if Sheets fetch failed while online
-  if(!sheet && navigator.onLine && getSheetsUrl()){
-    showToast('Showing local entries only — could not reach Sheets.', false);
+  // Show link to Google Sheets for combined view if configured
+  const sheetUrl = getSheetOpenUrl();
+  const noteEl   = document.getElementById('todaySheetsNote');
+  if(noteEl){
+    if(sheetUrl){
+      noteEl.innerHTML = `Showing this device's entries. <a href="${sheetUrl}" target="_blank" style="color:#00529B;font-weight:600;">View combined log from all devices in Google Sheets →</a>`;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
   }
 }
 
@@ -140,11 +140,18 @@ function triggerBrowse(){
 }
 
 async function renderBrowse(dk){
-  const dateObj = new Date(dk + 'T00:00:00');
-  let   local   = await getEntriesFor(dk);
-  const sheet   = await sheetsFetchDate(dateObj);
-  let   entries = sheet ? mergeEntries(local, sheet) : local;
-
+  let entries = await getEntriesFor(dk);
   if(browseFilterVal !== 'all') entries = entries.filter(e => e.type === browseFilterVal);
   buildTable(entries, dk, 'browseTableWrap');
+
+  const sheetUrl = getSheetOpenUrl();
+  const noteEl   = document.getElementById('browseSheetsNote');
+  if(noteEl){
+    if(sheetUrl){
+      noteEl.innerHTML = `Showing this device's entries. <a href="${sheetUrl}" target="_blank" style="color:#00529B;font-weight:600;">View combined log from all devices in Google Sheets →</a>`;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
+  }
 }

@@ -56,3 +56,22 @@ function doAdminLogin(pw){
 }
 
 function doAdminLogout(){ sessionStorage.removeItem('logbook:admin'); }
+
+/* Google Spreadsheet URL (separate from the Script/exec URL) */
+function getSpreadsheetUrl(){ return localStorage.getItem('logbook:spreadsheetUrl') || ''; }
+function setSpreadsheetUrl(url){ localStorage.setItem('logbook:spreadsheetUrl', url.trim()); }
+
+function extractSpreadsheetId(url){
+  const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  return m ? m[1] : null;
+}
+
+function getSheetDownloadUrl(){
+  const id = extractSpreadsheetId(getSpreadsheetUrl());
+  return id ? `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx` : null;
+}
+
+function getSheetOpenUrl(){
+  const url = getSpreadsheetUrl();
+  return url || null;
+}

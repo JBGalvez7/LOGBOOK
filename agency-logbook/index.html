@@ -33,7 +33,7 @@
     <div class="ss-subtitle">Automated Logbook System</div>
     <div class="ss-divider"></div>
     <div class="ss-invite">Welcome! Please register your entry at this kiosk.</div>
-    <div class="ss-tap">Press any key to begin</div>
+    <div class="ss-tap">Tap anywhere to begin</div>
   </div>
 </div>
 
@@ -204,7 +204,8 @@
             <button data-val="Employee">Employees</button>
             <button data-val="Visitor">Visitors</button>
           </div>
-          <div id="todayTableWrap"></div>
+          <p id="todaySheetsNote" style="font-size:12.5px;color:#555;margin-bottom:10px;display:none;"></p>
+      <div id="todayTableWrap"></div>
         </div>
       </div>
 
@@ -225,6 +226,7 @@
             <button data-val="Employee">Employees</button>
             <button data-val="Visitor">Visitors</button>
           </div>
+          <p id="browseSheetsNote" style="font-size:12.5px;color:#555;margin-bottom:10px;display:none;"></p>
           <div id="browseTableWrap"></div>
         </div>
       </div>
@@ -234,7 +236,7 @@
         <div class="card">
           <h2>Export Month to Spreadsheet</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            This will generate an Excel file for the selected month. Each day of the month gets its own sheet, even days with no entries, so the records stay complete.
+            If the Google Spreadsheet URL is saved in Settings, this downloads the connected Google Sheet directly — which has entries from all connected devices. If offline or no Spreadsheet URL is set, it generates a local Excel file from this device only.
           </p>
           <div class="export-controls">
             <div class="field-inline">
@@ -283,7 +285,7 @@
                 </select>
               </div>
               <div class="field-inline">
-                <label>Office Location</label>
+                <label> Office Location</label>
                 <select id="empOfficeLocation" class="small">
                   <option value="Benguet Provincial Office">Benguet Provincial Office</option>
                   <option value="Benguet Provincial Training Center">Benguet Provincial Training Center</option>
@@ -308,18 +310,21 @@
         <div class="card">
           <h2>Google Sheets Integration</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            Paste the Google Apps Script URL here so entries can be synced to Google Sheets automatically. The <code>Code.gs</code> file in the project folder has the script you need to deploy first.
+            The system syncs every entry to Google Sheets automatically. Both fields below are needed — the Script URL for sending entries, and the Spreadsheet URL for downloading combined exports.
           </p>
           <div class="field">
-            <label>Google Apps Script URL</label>
-            <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...">
+            <label>Google Apps Script URL <span style="font-weight:normal;font-size:12px;color:#888;">(ends in /exec — for syncing entries)</span></label>
+            <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Google Spreadsheet URL <span style="font-weight:normal;font-size:12px;color:#888;">(for downloading combined export)</span></label>
+            <input type="text" id="spreadsheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/...">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
             <button id="saveSheetsUrl">Save URL</button>
             <button id="openSheetBtn" class="btn-secondary" style="background:#276227;">📊 Open Google Sheet</button>
             <button id="downloadSheetBtn" class="btn-secondary" style="background:#1b5e20;">⬇ Download as Excel from Sheets</button>
           </div>
-          <button id="testConnectionBtn" style="margin-top:10px;background:#555;">🔌 Test Sheets Connection</button>
           <button id="syncNowBtn" style="margin-top:10px;background:#e67e22;">🔄 Sync Pending Entries Now</button>
           <p id="syncStatus" style="font-size:12.5px;color:#555;margin-top:8px;display:none;"></p>
         </div>

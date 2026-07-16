@@ -69,3 +69,8 @@ function debounce(fn, delay){
     timer = setTimeout(()=> fn.apply(this, args), delay);
   };
 }
+
+/* Day-level sheet name — matches local export naming so Sheets and Excel look identical */
+function daySheetName(dateObj){
+  return `${MONTHS_ABBR[dateObj.getMonth()]}-${pad2(dateObj.getDate())}-${dateObj.getFullYear()}`;
+}
