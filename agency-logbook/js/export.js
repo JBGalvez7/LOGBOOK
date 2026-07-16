@@ -1,14 +1,10 @@
 /* =========================================================
-   export.js — Export month to spreadsheet.
+   export.js — generates a monthly Excel file locally.
+   One workbook per month, one sheet per calendar day,
+   using entries saved on this device's localStorage.
 
-   If the Google Spreadsheet URL is saved in settings and
-   the device is online, clicking Export downloads the
-   connected Google Sheet directly as Excel — which already
-   has entries from ALL connected devices since they all
-   sync to the same Sheet.
-
-   If offline or no Spreadsheet URL is saved, falls back
-   to generating a local Excel from this device's data.
+   For combined entries from all connected devices, open
+   the Google Sheet directly from Admin > Settings.
 ========================================================= */
 
 const monthSelect = document.getElementById('exportMonth');
@@ -36,9 +32,11 @@ function buildDaySheet(dateObj, entries){
     aoa.push(['-','-','-','-','No entries recorded for this date.','-','-','-','-','-']);
   } else {
     entries.forEach((en, i) => {
-      aoa.push([i+1, dash(en.time), dash(en.timeOut), dash(en.location),
+      aoa.push([
+        i+1, dash(en.time), dash(en.timeOut), dash(en.location),
         dash(en.name), dash(en.idNumber), dash(en.type),
-        dash(en.visitorCategory), dash(en.gender), dash(en.purpose)]);
+        dash(en.visitorCategory), dash(en.gender), dash(en.purpose)
+      ]);
     });
   }
   const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -57,54 +55,40 @@ function buildDaySheet(dateObj, entries){
   if(ws['A2']) ws['A2'].s = ital;
   ['A','B','C','D','E','F','G','H','I','J'].forEach(c => { if(ws[`${c}4`]) ws[`${c}4`].s = blue; });
   entries.forEach((_,i) => {
-    if(i%2===1){ const row=i+5; ['A','B','C','D','E','F','G','H','I','J'].forEach(c=>{ if(ws[`${c}${row}`]) ws[`${c}${row}`].s=alt; }); }
+    if(i%2===1){
+      const row=i+5;
+      ['A','B','C','D','E','F','G','H','I','J'].forEach(c => { if(ws[`${c}${row}`]) ws[`${c}${row}`].s = alt; });
+    }
   });
   return ws;
 }
 
 function safeSheetName(d){ return `${MONTHS_ABBR[d.getMonth()]}-${pad2(d.getDate())}`; }
 
-/* Generate local Excel from this device's localStorage data */
-async function exportLocal(mi, year){
-  const days = daysInMonth(year, mi);
-  const wb   = XLSX.utils.book_new();
-  const used = new Set();
-  for(let d=1; d<=days; d++){
-    const dateObj = new Date(year, mi, d);
-    const entries = await getEntriesFor(dateKey(dateObj));
-    const ws      = buildDaySheet(dateObj, entries);
-    let name = safeSheetName(dateObj), sfx=1;
-    while(used.has(name)) name=`${safeSheetName(dateObj)}-${sfx++}`;
-    used.add(name);
-    XLSX.utils.book_append_sheet(wb, ws, name);
-  }
-  const fileName = `Logbook_${MONTHS_FULL[mi]}_${year}_LocalOnly.xlsx`;
-  XLSX.writeFile(wb, fileName, {cellStyles:true});
-  showToast(`${fileName} downloaded (this device only).`);
-}
-
 document.getElementById('exportGo').addEventListener('click', async () => {
   const mi   = Number(monthSelect.value);
   const year = Number(document.getElementById('exportYear').value);
-  if(!year || year < 1900 || year > 2200){ showToast('Enter a valid year.', true); return; }
-
-  const btn = document.getElementById('exportGo');
-  const dlUrl = getSheetDownloadUrl();
-
-  /* If Google Spreadsheet URL is saved and we're online — download from Sheets */
-  if(dlUrl && navigator.onLine){
-    showToast('Opening Google Sheets download — includes all devices.');
-    window.open(dlUrl, '_blank');
-    return;
+  if(!year || year < 1900 || year > 2200){
+    showToast('Enter a valid year.', true); return;
   }
-
-  /* Offline or no Spreadsheet URL — generate locally */
+  const btn = document.getElementById('exportGo');
   btn.disabled = true; btn.textContent = 'Generating...';
   try{
-    if(!dlUrl && getSheetsUrl()){
-      showToast('No Spreadsheet URL saved. Paste it in Settings to get combined export. Generating local export instead.', false);
+    const days = daysInMonth(year, mi);
+    const wb   = XLSX.utils.book_new();
+    const used = new Set();
+    for(let d = 1; d <= days; d++){
+      const dateObj = new Date(year, mi, d);
+      const entries = await getEntriesFor(dateKey(dateObj));
+      const ws      = buildDaySheet(dateObj, entries);
+      let name = safeSheetName(dateObj), sfx = 1;
+      while(used.has(name)) name = `${safeSheetName(dateObj)}-${sfx++}`;
+      used.add(name);
+      XLSX.utils.book_append_sheet(wb, ws, name);
     }
-    await exportLocal(mi, year);
+    const fileName = `Logbook_${MONTHS_FULL[mi]}_${year}.xlsx`;
+    XLSX.writeFile(wb, fileName, {cellStyles: true});
+    showToast(`${fileName} downloaded — ${days} sheets.`);
   }catch(err){
     console.error(err);
     showToast('Export failed. Please try again.', true);

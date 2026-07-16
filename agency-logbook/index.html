@@ -236,7 +236,7 @@
         <div class="card">
           <h2>Export Month to Spreadsheet</h2>
           <p style="font-size:13px;color:#555;margin-bottom:14px;">
-            If the Google Spreadsheet URL is saved in Settings, this downloads the connected Google Sheet directly — which has entries from all connected devices. If offline or no Spreadsheet URL is set, it generates a local Excel file from this device only.
+            Generates an Excel file for the selected month with one sheet per day. This exports entries saved on this device. To see combined entries from all connected devices, use the Google Sheet link in Settings above.
           </p>
           <div class="export-controls">
             <div class="field-inline">
@@ -321,8 +321,12 @@
             <input type="text" id="spreadsheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/...">
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
-            <button id="saveSheetsUrl">Save URL</button>
-            <button id="openSheetBtn" class="btn-secondary" style="background:#276227;">📊 Open Google Sheet</button>
+            <button id="saveSheetsUrl">Save Settings</button>
+          </div>
+          <div id="sheetLinkWrap" style="display:none;margin-top:12px;padding:10px 12px;background:#e8f5e9;border:1px solid #82b882;border-radius:4px;font-size:13px;">
+            📊 <a id="sheetDirectLink" href="#" target="_blank" rel="noopener noreferrer" style="color:#1b5e20;font-weight:600;">Open Google Sheet — combined entries from all devices</a>
+          </div>
+          <div style="display:none;">
             <button id="downloadSheetBtn" class="btn-secondary" style="background:#1b5e20;">⬇ Download as Excel from Sheets</button>
           </div>
           <button id="syncNowBtn" style="margin-top:10px;background:#e67e22;">🔄 Sync Pending Entries Now</button>

@@ -545,20 +545,31 @@ function renderEmployeeRegistry(){
 function loadAdminSettings(){
   document.getElementById('sheetsUrlInput').value    = getSheetsUrl();
   document.getElementById('spreadsheetUrlInput').value = getSpreadsheetUrl();
+  updateSheetLink();
 }
 
 
 document.getElementById('saveSheetsUrl').addEventListener('click', () => {
   setSheetsUrl(document.getElementById('sheetsUrlInput').value);
   setSpreadsheetUrl(document.getElementById('spreadsheetUrlInput').value);
+  updateSheetLink();
   showToast('Sheets settings saved.');
 });
 
-document.getElementById('openSheetBtn').addEventListener('click', () => {
-  const url = getSheetOpenUrl();
-  if(!url){ showToast('No Spreadsheet URL saved yet. Paste it in Settings first.', true); return; }
-  window.open(url, '_blank');
-});
+/* Update the visible sheet link whenever settings are loaded or saved */
+function updateSheetLink(){
+  const url  = getSheetOpenUrl();
+  const wrap = document.getElementById('sheetLinkWrap');
+  const link = document.getElementById('sheetDirectLink');
+  if(wrap && link){
+    if(url){
+      link.href        = url;
+      wrap.style.display = 'block';
+    } else {
+      wrap.style.display = 'none';
+    }
+  }
+}
 
 document.getElementById('syncNowBtn').addEventListener('click', async () => {
   const status = document.getElementById('syncStatus');

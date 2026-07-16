@@ -428,8 +428,8 @@ code{
   to   { opacity: 1; transform: translateY(0); }
 }
 .ss-logo {
-  width: 400px;
-  height: 400px;
+  width: 250px;
+  height: 250px;
   object-fit: contain;
   margin-bottom: 22px;
   filter: drop-shadow(0 4px 16px rgba(0,0,0,0.3));
