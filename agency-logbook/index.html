@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated Logbook System</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00529B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Logbook">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="icons/logo-placeholder.png"  alt="Office Logo"  class="header-logo">
+    <img src="icons/logo2-placeholder.png" alt="Office Logo 2" class="header-logo">
+    <div class="header-text">
+      <div class="header-title">Automated Logbook System</div>
+      <div class="header-sub">DICT Benguet Provincial Office</div>
+    </div>
+  </div>
+</header>
+
+<!-- ====== SCREENSAVER / WELCOME SCREEN ====== -->
+<div id="screensaver">
+  <div class="ss-content">
+    <div class="ss-logos">
+      <img src="icons/logo-placeholder.png"  alt="Office Logo"  class="ss-logo">
+      <img src="icons/logo2-placeholder.png" alt="Office Logo 2" class="ss-logo">
+    </div>
+    <div class="ss-title">DICT Benguet Provincial Office</div>
+    <div class="ss-subtitle">Automated Logbook System</div>
+    <div class="ss-divider"></div>
+    <div class="ss-invite">Welcome! Please register your entry at this kiosk.</div>
+    <div class="ss-tap">Tap anywhere to begin</div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- Clock -->
+  <div id="queueBadge" style="display:none;background:#e67e22;color:#fff;text-align:center;padding:7px 14px;font-size:13px;font-weight:bold;">⏳ Syncing pending — entries saved locally, waiting for connection...</div>
+  <div class="clock-strip">
+    <span class="clock-date" id="clockDate"></span>
+    <span class="clock-time" id="clockTime"></span>
+  </div>
+
+  <!-- Main tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="entry">New Entry</button>
+    <button class="tab-btn" data-tab="employee">👤 Employee</button>
+    <button class="tab-btn" data-tab="admin">🔒 Admin</button>
+  </div>
+
+  <!-- ================================================ NEW ENTRY -->
+  <section class="panel active" id="panel-entry">
+    <div class="card">
+      <h2>New Entry</h2>
+
+      <div class="row2">
+        <div class="field" id="fType">
+          <label>Type</label>
+          <select id="type">
+            <option value="">Select</option>
+            <option>Employee</option>
+            <option>Visitor</option>
+          </select>
+          <div class="err-msg">Please select a type.</div>
+        </div>
+        <div class="field" id="fGender">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Prefer not to say</option>
+          </select>
+          <div class="err-msg">Please select a gender.</div>
+        </div>
+      </div>
+
+      <!-- Employee ID (shown only for Employee) -->
+      <div class="field" id="fIdNumber" style="display:none;">
+        <label>Employee ID <span class="label-note">(enter to auto-fill your details)</span></label>
+        <input type="text" id="idNumber" placeholder="e.g. EMP-001" autocomplete="off">
+        <div class="autofill-badge" id="autoFillBadge" style="display:none;"></div>
+      </div>
+
+      <!-- Visitor Category (shown only for Visitor) -->
+      <div class="field" id="fVisitorCategory" style="display:none;">
+        <label>Visitor Category</label>
+        <select id="visitorCategory">
+          <option value="General Visitor">General Visitor</option>
+          <option value="Senior Citizen (SC)">Senior Citizen (SC)</option>
+          <option value="Student">Student</option>
+          <option value="Person with Disability (PWD)">Person with Disability (PWD)</option>
+          <option value="Government Personnel">Government Personnel</option>
+          <option value="Business Representative">Business Representative</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+
+      <div class="field" id="fName">
+        <label>Full Name</label>
+        <input type="text" id="fullname" placeholder="Juan D. Dela Cruz" autocomplete="off">
+        <div class="err-msg">Please enter the full name.</div>
+      </div>
+
+      <div class="field" id="fLocation">
+        <label>Office Location</label>
+        <select id="location">
+          <option value="Benguet Provincial Office">Benguet Provincial Office</option>
+          <option value="Benguet Provincial Training Center">Benguet Provincial Training Center</option>
+        </select>
+      </div>
+
+      <div class="field" id="fPurpose">
+        <label>Purpose of Visit / Duty</label>
+        <textarea id="purpose" placeholder="e.g. Reporting for duty, Submitting documents, Attending training"></textarea>
+        <div class="err-msg">Please enter the purpose.</div>
+      </div>
+
+      <div class="field" id="fSig">
+        <label>Signature</label>
+        <canvas id="signaturePad"></canvas>
+        <div class="err-msg">Please provide a signature.</div>
+      </div>
+      <div class="sig-actions">
+        <button class="btn-sm btn-secondary" onclick="clearSignature()">Clear Signature</button>
+      </div>
+
+      <div class="submit-row">
+        <button onclick="saveEntry()">Submit Entry</button>
+        <div class="confirm-banner" id="confirmBanner"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================ EMPLOYEE -->
+  <section class="panel" id="panel-employee">
+    <div class="card">
+      <h2>Employee Time Out</h2>
+      <p style="font-size:13px;color:#555;margin-bottom:16px;">
+        Enter your Employee ID to clock in or out.
+      </p>
+
+      <div class="field" style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:bold;color:#333;display:block;margin-bottom:5px;">Employee ID</label>
+        <input type="text" id="empCheckId" placeholder="e.g. EMP-001" autocomplete="off" style="padding:9px 10px;border:1px solid #ccc;border-radius:3px;font-size:14px;width:100%;max-width:280px;">
+      </div>
+
+      <div id="empCheckResult" style="display:none;margin-top:6px;"></div>
+    </div>
+  </section>
+
+  <!-- ================================================ ADMIN -->
+  <section class="panel" id="panel-admin">
+
+    <!-- Login -->
+    <div id="adminLoginWrap">
+      <div class="card" style="max-width:380px;margin:0 auto;">
+        <h2>Admin Login</h2>
+        <p style="font-size:13px;color:#555;margin-bottom:14px;">
+          This section is for admin use only. Please enter your password to continue.
+        </p>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="adminPassword" placeholder="Enter password">
+        </div>
+        <div id="loginErr" class="autofill-badge" style="display:none;background:#fde8e8;color:#a93226;border-color:#e8a0a0;">
+          Incorrect password. Please try again.
+        </div>
+        <div style="margin-top:12px;">
+          <button id="loginBtn">Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin content (hidden until login) -->
+    <div id="adminContentWrap" style="display:none;">
+
+      <div class="admin-header">
+        <span>Logged in as Administrator</span>
+        <button class="btn-sm btn-secondary" id="logoutBtn">Logout</button>
+      </div>
+
+      <!-- Admin sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" data-sub="today">Today's Log</button>
+        <button class="sub-tab-btn" data-sub="browse">Browse Records</button>
+        <button class="sub-tab-btn" data-sub="export">Export</button>
+        <button class="sub-tab-btn" data-sub="employees">Employee Registry</button>
+        <button class="sub-tab-btn" data-sub="settings">Settings</button>
+      </div>
+
+      <!-- Today's Log -->
+      <div class="sub-panel active" id="subpanel-today">
+        <div class="card">
+          <h2 id="todayTitle">Today's Log</h2>
+          <div class="filter-row" id="todayFilter">
+            <button data-val="all" class="selected">All</button>
+            <button data-val="Employee">Employees</button>
+            <button data-val="Visitor">Visitors</button>
+          </div>
+          <p id="todaySheetsNote" style="font-size:12.5px;color:#555;margin-bottom:10px;display:none;"></p>
+      <div id="todayTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- Browse Records -->
+      <div class="sub-panel" id="subpanel-browse">
+        <div class="card">
+          <h2>Browse Records</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">Pick a date to pull up the log entries for that day.</p>
+          <div class="export-controls" style="margin-bottom:14px;">
+            <div class="field-inline">
+              <label>Date</label>
+              <input type="date" id="browseDate">
+            </div>
+            <button id="browseGo">Show Entries</button>
+          </div>
+          <div class="filter-row" id="browseFilter">
+            <button data-val="all" class="selected">All</button>
+            <button data-val="Employee">Employees</button>
+            <button data-val="Visitor">Visitors</button>
+          </div>
+          <p id="browseSheetsNote" style="font-size:12.5px;color:#555;margin-bottom:10px;display:none;"></p>
+          <div id="browseTableWrap"></div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="sub-panel" id="subpanel-export">
+        <div class="card">
+          <h2>Export Month to Spreadsheet</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Generates an Excel file for the selected month with one sheet per day. This exports entries saved on this device. To see combined entries from all connected devices, use the Google Sheet link in Settings above.
+          </p>
+          <div class="export-controls">
+            <div class="field-inline">
+              <label>Month</label>
+              <select id="exportMonth" class="small"></select>
+            </div>
+            <div class="field-inline">
+              <label>Year</label>
+              <input type="number" id="exportYear" min="2020" max="2035" style="width:90px;">
+            </div>
+            <button id="exportGo">Generate &amp; Download</button>
+          </div>
+          <p class="note">
+            To open in Google Sheets: go to Google Drive → New → File upload, select the
+            downloaded file. Right-click → Open with → Google Sheets.
+          </p>
+        </div>
+      </div>
+
+      <!-- Employee Registry -->
+      <div class="sub-panel" id="subpanel-employees">
+        <div class="card">
+          <h2>Employee Registry</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Employees added here can just type their ID on the New Entry form and their details will fill in on their own. Their signature gets saved the first time they submit an entry.
+          </p>
+          <div class="registry-form">
+            <div class="row2">
+              <div class="field-inline">
+                <label>ID Number</label>
+                <input type="text" id="empId" placeholder="e.g. EMP-001">
+              </div>
+              <div class="field-inline">
+                <label>Full Name</label>
+                <input type="text" id="empName" placeholder="Juan D. Dela Cruz">
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;">
+              <div class="field-inline">
+                <label>Gender</label>
+                <select id="empGender" class="small">
+                  <option value="">Select</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Prefer not to say</option>
+                </select>
+              </div>
+              <div class="field-inline">
+                <label> Office Location</label>
+                <select id="empOfficeLocation" class="small">
+                  <option value="Benguet Provincial Office">Benguet Provincial Office</option>
+                  <option value="Benguet Provincial Training Center">Benguet Provincial Training Center</option>
+                </select>
+              </div>
+              <div class="field-inline" style="flex:1;">
+                <label>Default Purpose</label>
+                <input type="text" id="empDefaultPurpose" placeholder="Reporting for duty" style="padding:8px 10px;border:1px solid #ccc;border-radius:3px;font-size:13.5px;width:100%;">
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+              <button id="addEmployeeBtn">Add Employee</button>
+              <button id="cancelEditBtn" class="btn-secondary" style="display:none;">Cancel Edit</button>
+            </div>
+          </div>
+          <div style="margin-top:18px;" id="employeeListWrap"></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="sub-panel" id="subpanel-settings">
+        <div class="card">
+          <h2>Google Sheets Integration</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            The system syncs every entry to Google Sheets automatically. Both fields below are needed — the Script URL for sending entries, and the Spreadsheet URL for downloading combined exports.
+          </p>
+          <div class="field">
+            <label>Google Apps Script URL <span style="font-weight:normal;font-size:12px;color:#888;">(ends in /exec — for syncing entries)</span></label>
+            <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Google Spreadsheet URL <span style="font-weight:normal;font-size:12px;color:#888;">(for downloading combined export)</span></label>
+            <input type="text" id="spreadsheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/...">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
+            <button id="saveSheetsUrl">Save Settings</button>
+          </div>
+          <div id="sheetLinkWrap" style="display:none;margin-top:12px;padding:10px 12px;background:#e8f5e9;border:1px solid #82b882;border-radius:4px;font-size:13px;">
+            📊 <a id="sheetDirectLink" href="#" target="_blank" rel="noopener noreferrer" style="color:#1b5e20;font-weight:600;">Open Google Sheet — combined entries from all devices</a>
+          </div>
+          <div style="display:none;">
+            <button id="downloadSheetBtn" class="btn-secondary" style="background:#1b5e20;">⬇ Download as Excel from Sheets</button>
+          </div>
+          <button id="syncNowBtn" style="margin-top:10px;background:#e67e22;">🔄 Sync Pending Entries Now</button>
+          <p id="syncStatus" style="font-size:12.5px;color:#555;margin-top:8px;display:none;"></p>
+        </div>
+
+                <div class="card" style="margin-top:16px;">
+          <h2>Data Backup &amp; Restore</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">
+            Download a copy of all logbook entries as a backup file. It's a good idea to save this somewhere safe like a USB drive or Google Drive in case anything happens to the device.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button id="backupBtn">&#128190; Download Backup</button>
+            <label style="background:#666;color:#fff;padding:10px 18px;border-radius:3px;cursor:pointer;font-size:13.5px;">
+              &#128196; Restore from Backup
+              <input type="file" id="restoreFile" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <div id="backupInfo" style="font-size:12.5px;color:#555;margin-top:10px;display:none;"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h2>Change Admin Password</h2>
+          <p style="font-size:13px;color:#555;margin-bottom:14px;">Set a new password for the admin section. Make sure to remember it or keep it somewhere safe.</p>
+          <div class="field">
+            <label>New Password</label>
+            <input type="password" id="newPassword" placeholder="New password">
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <input type="password" id="newPassword2" placeholder="Re-enter new password">
+          </div>
+          <button id="savePasswordBtn">Update Password</button>
+        </div>
+      </div>
+
+    </div><!-- /adminContentWrap -->
+  </section>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Load order matters: utils first, app.js last -->
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/googlesheets.js"></script>
+<script src="js/signature.js"></script>
+<script src="js/render.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+<script src="js/backup.js"></script>
+
+<script>
+// Register the service worker so the app works offline and is installable
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(reg => console.log("SW registered:", reg.scope))
+      .catch(err => console.warn("SW registration failed:", err));
+  });
+}
+</script>
+</body>
+</html>
